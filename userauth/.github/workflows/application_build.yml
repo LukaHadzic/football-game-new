@@ -1,0 +1,58 @@
+name: Application Build and Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 26
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: '26'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build with Maven
+        run: mvn clean install -B
+
+      - name: Jacoco report to pull request comment
+        if: always()
+        uses: madrapps/jacoco-playground@v2
+        with:
+          paths: ${{ github.workspace }}/target/site/jacoco.jacoco.html
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-zone: 50
+
+      - name: Deploy Jacoco HTML report to GitHub pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: target/site/jacoco
+          publish_branch: gh-pages
+
+
+
+
+
