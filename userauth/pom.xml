@@ -116,7 +116,7 @@
 									<limits>
 										<limit>
 											<counter>LINE</counter>
-											<value>COVEREDRATION</value>
+											<value>COVEREDRATIO</value>
 											<minimum>0.50</minimum>
 										</limit>
 									</limits>
