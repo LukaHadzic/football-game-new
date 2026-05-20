@@ -38,7 +38,7 @@ jobs:
 
       - name: Jacoco report to pull request comment
         if: always()
-        uses: madrapps/jacoco-playground@v2
+        uses: madrapps/jacoco-report@v1.7.1
         with:
           paths: ${{ github.workspace }}/target/site/jacoco.jacoco.html
           token: ${{ secrets.GITHUB_TOKEN }}
