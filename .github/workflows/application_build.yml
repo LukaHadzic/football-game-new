@@ -49,7 +49,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/site/jacoco
+          publish_dir: ./userauth/target/site/jacoco
           publish_branch: gh-pages
 
 
