@@ -1,6 +1,2 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-,com.luka.userauth.entity,User,150,11,0,0,49,3,20,1,20,1
-,com.luka.userauth.entity,UserRoles,75,0,0,0,24,0,9,0,9,0
-,com.luka.userauth.entity,Role,28,8,0,0,10,2,5,1,5,1
-,com.luka.userauth.entity,UserRolesId,73,0,10,0,17,0,13,0,8,0
 ,com.luka.userauth,UserauthApplication,5,3,0,0,2,1,1,1,1,1
