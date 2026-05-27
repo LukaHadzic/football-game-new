@@ -1,5 +1,8 @@
 package com.luka.userauth.service.impl;
 
+import com.luka.userauth.dto.LoginDto;
+import com.luka.userauth.dto.LoginResponseDto;
+import com.luka.userauth.exception.exceptionclasses.UserNotFoundException;
 import com.luka.userauth.dto.RegisterDto;
 import com.luka.userauth.entity.Role;
 import com.luka.userauth.entity.User;
@@ -11,6 +14,7 @@ import com.luka.userauth.repository.UserRepository;
 import com.luka.userauth.service.AuthService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Clock;
@@ -65,5 +69,19 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return "Successfully registered.";
+    }
+
+    @Override
+    public LoginResponseDto login(LoginDto loginDto) {
+        String nickOrEmail = loginDto.getNickOrEmail();
+
+        User user = userRepository.findByEmailOrNick(nickOrEmail)
+                .orElseThrow(() -> new UserNotFoundException("Wrong login credentials."));
+
+        if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
+            throw new UserNotFoundException("Wrong login credentials.");
+        }
+
+        return new LoginResponseDto(userMapper.toUserDto(user));
     }
 }
