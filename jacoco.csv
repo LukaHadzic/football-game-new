@@ -1,10 +1,11 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 ,com.luka.userauth.security,SecurityConfig,0,77,0,0,0,11,0,5,0,5
-,com.luka.userauth.service.impl,AuthServiceImpl,51,45,0,2,13,12,1,4,1,3
+,com.luka.userauth.service.impl,AuthServiceImpl,51,82,0,4,13,18,1,7,1,5
+,com.luka.userauth.exception,GlobalExceptionHandler,7,17,0,0,1,3,1,3,1,3
 ,com.luka.userauth.config,TimeConfig,0,7,0,0,0,2,0,2,0,2
-,com.luka.userauth.exception,GlobalExceptionHandler,7,10,0,0,1,2,1,2,1,2
+,com.luka.userauth.exception.exceptionclasses,UserNotFoundException,0,4,0,0,0,2,0,1,0,1
 ,com.luka.userauth.exception.exceptionclasses,UserAlreadyExistsException,0,4,0,0,0,2,0,1,0,1
 ,com.luka.userauth.exception.exceptionclasses,RegistrationFailedException,0,4,0,0,0,2,0,1,0,1
-,com.luka.userauth.controller,AuthController,0,15,0,0,0,4,0,2,0,2
-,com.luka.userauth.mapper,UserMapper,22,3,0,0,6,1,1,1,1,1
-,com.luka.userauth,UserauthApplication,5,3,0,0,2,1,1,1,1,1
+,com.luka.userauth.controller,AuthController,0,26,0,0,0,6,0,3,0,3
+,com.luka.userauth.mapper,UserMapper,22,39,0,0,6,9,1,2,1,2
+,com.luka.userauth,UserAuthApplication,5,3,0,0,2,1,1,1,1,1

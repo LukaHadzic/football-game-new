@@ -1,21 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.luka.userauth.mapper</a> &gt; <span class="el_source">UserMapper.java</span></div><h1>UserMapper.java</h1><pre class="source lang-java linenums">package com.luka.userauth.mapper;
 
-import com.luka.userauth.dto.RegisterDto;
+import com.luka.userauth.dto.UserDto;
+import com.luka.userauth.entity.Role;
 import com.luka.userauth.entity.User;
+import com.luka.userauth.dto.RegisterDto;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Collectors;
+
 @Component
-<span class="fc" id="L8">public class UserMapper {</span>
+<span class="fc" id="L12">public class UserMapper {</span>
 
     public User registerToEntity(RegisterDto registerDto) {
-<span class="nc" id="L11">        User user = new User();</span>
+<span class="nc" id="L15">        User user = new User();</span>
 
-<span class="nc" id="L13">        user.setName(registerDto.getName());</span>
-<span class="nc" id="L14">        user.setSurname(registerDto.getSurname());</span>
-<span class="nc" id="L15">        user.setNick(registerDto.getNick());</span>
-<span class="nc" id="L16">        user.setEmail(registerDto.getEmail());</span>
+<span class="nc" id="L17">        user.setName(registerDto.getName());</span>
+<span class="nc" id="L18">        user.setSurname(registerDto.getSurname());</span>
+<span class="nc" id="L19">        user.setNick(registerDto.getNick());</span>
+<span class="nc" id="L20">        user.setEmail(registerDto.getEmail());</span>
 
-<span class="nc" id="L18">        return user;</span>
+<span class="nc" id="L22">        return user;</span>
+    }
+
+    public UserDto toUserDto(User user){
+<span class="fc" id="L26">        UserDto userDto = new UserDto();</span>
+
+<span class="fc" id="L28">        userDto.setId(user.getId());</span>
+<span class="fc" id="L29">        userDto.setNick(user.getNick());</span>
+<span class="fc" id="L30">        userDto.setName(user.getName());</span>
+<span class="fc" id="L31">        userDto.setSurname(user.getSurname());</span>
+<span class="fc" id="L32">        userDto.setEmail(user.getEmail());</span>
+<span class="fc" id="L33">        userDto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));</span>
+
+<span class="fc" id="L35">        return userDto;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
