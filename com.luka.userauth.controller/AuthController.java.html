@@ -22,7 +22,7 @@ public class AuthController {
 
     @PostMapping(&quot;/register&quot;)
     public ResponseEntity&lt;String&gt; register(@Valid @RequestBody RegisterDto request){
-<span class="nc" id="L25">        return new ResponseEntity&lt;&gt;(authService.register(request), HttpStatus.OK);</span>
+<span class="fc" id="L25">        return new ResponseEntity&lt;&gt;(authService.register(request), HttpStatus.OK);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
