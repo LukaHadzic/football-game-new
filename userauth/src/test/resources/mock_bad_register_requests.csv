@@ -1,0 +1,101 @@
+name,surname,nick,email,password
+ ,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,,marko@example.com,Password123!
+Marko,Markovic,Mare123,user@,Password123!
+Marko,Markovic,Mare123,marko@example.com,onlylowercase1!
+,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,,marko@example.com,Password123!
+Marko,Markovic,Mare123, ,Password123!
+Marko,Markovic,Mare123,marko@example.com,Short1!
+,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,ab,marko@example.com,Password123!
+Marko,Markovic,Mare123,@domain.com,Password123!
+Marko,Markovic,Mare123,marko@example.com,Short1!
+ ,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,ab,marko@example.com,Password123!
+Marko,Markovic,Mare123,@domain.com,Password123!
+Marko,Markovic,Mare123,marko@example.com,ONLYUPPERCASE1!
+,Markovic,Mare123,marko@example.com,Password123!
+Marko, ,Mare123,marko@example.com,Password123!
+Marko,Markovic,,marko@example.com,Password123!
+Marko,Markovic,Mare123,user@,Password123!
+Marko,Markovic,Mare123,marko@example.com,ONLYUPPERCASE1!
+,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,,marko@example.com,Password123!
+Marko,Markovic,Mare123,test@test,Password123!
+Marko,Markovic,Mare123,marko@example.com,ONLYUPPERCASE1!
+ ,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,ab,marko@example.com,Password123!
+Marko,Markovic,Mare123,invalid-email,Password123!
+Marko,Markovic,Mare123,marko@example.com,LongPasswordThatExceedsTwentyFiveCharacters123!
+,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,thisisareallylongnicknameexceedingtwentyfivecharacters,marko@example.com,Password123!
+Marko,Markovic,Mare123,invalid-email,Password123!
+Marko,Markovic,Mare123,marko@example.com,LongPasswordThatExceedsTwentyFiveCharacters123!
+ ,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,ab,marko@example.com,Password123!
+Marko,Markovic,Mare123,test@test,Password123!
+Marko,Markovic,Mare123,marko@example.com,onlylowercase1!
+ ,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,thisisareallylongnicknameexceedingtwentyfivecharacters,marko@example.com,Password123!
+Marko,Markovic,Mare123,@domain.com,Password123!
+Marko,Markovic,Mare123,marko@example.com,Short1!
+ ,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,,marko@example.com,Password123!
+Marko,Markovic,Mare123,@domain.com,Password123!
+Marko,Markovic,Mare123,marko@example.com,LongPasswordThatExceedsTwentyFiveCharacters123!
+,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,thisisareallylongnicknameexceedingtwentyfivecharacters,marko@example.com,Password123!
+Marko,Markovic,Mare123,test@test,Password123!
+Marko,Markovic,Mare123,marko@example.com,Short1!
+,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,ab,marko@example.com,Password123!
+Marko,Markovic,Mare123,invalid-email,Password123!
+Marko,Markovic,Mare123,marko@example.com,Short1!
+ ,Markovic,Mare123,marko@example.com,Password123!
+Marko, ,Mare123,marko@example.com,Password123!
+Marko,Markovic,ab,marko@example.com,Password123!
+Marko,Markovic,Mare123,invalid-email,Password123!
+Marko,Markovic,Mare123,marko@example.com,ONLYUPPERCASE1!
+ ,Markovic,Mare123,marko@example.com,Password123!
+Marko, ,Mare123,marko@example.com,Password123!
+Marko,Markovic,thisisareallylongnicknameexceedingtwentyfivecharacters,marko@example.com,Password123!
+Marko,Markovic,Mare123,@domain.com,Password123!
+Marko,Markovic,Mare123,marko@example.com,onlylowercase1!
+ ,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,,marko@example.com,Password123!
+Marko,Markovic,Mare123,test@test,Password123!
+Marko,Markovic,Mare123,marko@example.com,LongPasswordThatExceedsTwentyFiveCharacters123!
+,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,,marko@example.com,Password123!
+Marko,Markovic,Mare123,test@test,Password123!
+Marko,Markovic,Mare123,marko@example.com,Short1!
+,Markovic,Mare123,marko@example.com,Password123!
+Marko, ,Mare123,marko@example.com,Password123!
+Marko,Markovic,,marko@example.com,Password123!
+Marko,Markovic,Mare123,user@,Password123!
+Marko,Markovic,Mare123,marko@example.com,NoSpecialChar123
+,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,ab,marko@example.com,Password123!
+Marko,Markovic,Mare123,@domain.com,Password123!
+Marko,Markovic,Mare123,marko@example.com,ONLYUPPERCASE1!
+,Markovic,Mare123,marko@example.com,Password123!
+Marko,,Mare123,marko@example.com,Password123!
+Marko,Markovic,ab,marko@example.com,Password123!
+Marko,Markovic,Mare123, ,Password123!
+Marko,Markovic,Mare123,marko@example.com,ONLYUPPERCASE1!

@@ -14,4 +14,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(userNotFoundException.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<String> userAlreadyExists(UserAlreadyExistsException userAlreadyExistsException) {
+        return new ResponseEntity<>(userAlreadyExistsException.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(RegistrationFailedException.class)
+    public ResponseEntity<String> registrationFailed(RegistrationFailedException registrationFailedException) {
+        return new ResponseEntity<>(registrationFailedException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

@@ -7,8 +7,11 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository <User, Long>{
+public interface UserRepository extends JpaRepository<User, Long> {
+
+    Optional<User> findByEmail(String email);
 
     @Query("SELECT u FROM User u WHERE u.email = :nickOrEmail OR u.nick = :nickOrEmail")
     public Optional<User> findByEmailOrNick(@Param("nickOrEmail") String nickOrEmail);
+
 }
