@@ -15,6 +15,15 @@ jobs:
       pull-requests: write
       contents: write
 
+    env:
+      DB_URL: ${{ secrets.DB_URL }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      MAIL_HOST: ${{ secrets.MAIL_HOST }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD:  ${{ secrets.MAIL_PASSWORD }}
+
     services:
       postgres:
         image: postgres:15
@@ -72,6 +81,7 @@ jobs:
           publish_dir: ./${{ matrix.service }}/target/site/jacoco
           destination_dir: ${{ matrix.service }}
           publish_branch: gh-pages
+          force_orphan: 'true'
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
