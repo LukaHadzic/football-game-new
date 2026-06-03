@@ -1,0 +1,132 @@
+name: Application Build and Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+      contents: write
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: root
+          POSTGRES_DB: auth_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    strategy:
+      matrix:
+        service: [userauth]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 26
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'
+          java-version: '26'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ matrix.service }}-${{ hashFiles(format('{0}/pom.xml', matrix.service)) }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build and test with Maven
+        run: mvn -f ${{ matrix.service}}/pom.xml clean verify
+
+      - name: Jacoco report to pull request comment
+        if: always()
+        uses: madrapps/jacoco-report@v1.7.1
+        with:
+          paths: ${{ github.workspace }}/${{ matrix.service }}/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-zone: 50
+
+      - name: Deploy Jacoco HTML report to GitHub pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          publish_dir: ./jacoco-report/target/site/jacoco-aggregate
+          publish_dir: ./${{ matrix.service }}/target/site/jacoco
+          destination_dir: ${{ matrix.service }}
+          publish_branch: gh-pages
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.service }}
+          path: ${{ matrix.service }}/target/*.jar
+
+      - name: SonarQube analysis
+        run: |
+          mvn -f ${{ matrix.service }}/pom.xml sonar:sonar \
+          -Dsonar.organization=${{ secrets.SONAR_ORG }} \
+          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}-${{ matrix.service }} \
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.coverage.jacoco.xmlReportPaths=${{ matrix.service }}/target/site/jacoco/jacoco.xml
+
+  deploy:
+    needs: build_and_test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    env:
+      APP_NAME_MAP: |
+        {
+          "userauth": "USER_AUTHENTICATION_APP"
+        }
+
+    strategy:
+      matrix:
+        service: [userauth]
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.service }}
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Deploy ${{ matrix.service }} JAR to Microsoft Azure
+        run: |
+          APP_NAME=$(echo '${{ env.APP_NAME_MAP }}' | jq -r '."${{ matrix.service }}"')
+          
+          az webapp deploy \
+          --resource-group FirstResourceGroup \
+          --name $APP_NAME \
+          --src-path ${{ matrix.service }}/target/*.jar \
+          --type jar
+
+
+
+
+

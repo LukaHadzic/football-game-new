@@ -4,6 +4,7 @@ import com.luka.userauth.config.TestClockConfig;
 import com.luka.userauth.dto.LoginDto;
 import com.luka.userauth.dto.LoginResponseDto;
 import com.luka.userauth.dto.UserDto;
+import com.luka.userauth.entity.EmailVerificationToken;
 import com.luka.userauth.exception.exceptionclasses.UserNotFoundException;
 import com.luka.userauth.mapper.UserMapper;
 import com.luka.userauth.dto.RegisterDto;
@@ -14,6 +15,8 @@ import com.luka.userauth.exception.exceptionclasses.UserAlreadyExistsException;
 import com.luka.userauth.repository.RoleRepository;
 import com.luka.userauth.repository.UserRepository;
 import com.luka.userauth.service.AuthService;
+import com.luka.userauth.service.NotificationService;
+import com.luka.userauth.service.TokenService;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,14 +61,18 @@ public class AuthServiceImplTests {
     private UserRepository userRepository;
     @MockitoBean
     private RoleRepository roleRepository;
+    @MockitoBean
+    private TokenService tokenService;
+    @MockitoBean
+    private NotificationService notificationService;
 
     private User user;
+    private EmailVerificationToken verifToken;
 
     @BeforeEach
     void setUp(){
         user = new User(1L, "Player1", "NamePlayer1", "SurnamePlayer1",
-                "player1@gmail.com", "Player1!", false, LocalDateTime.now(clock).minusDays(1),
-                null);
+                "player1@gmail.com", "Player1!", false, LocalDateTime.now(clock).minusDays(1));
 
     }
 
@@ -146,6 +153,8 @@ public class AuthServiceImplTests {
         void setUp(){
             registerDto = new RegisterDto("a", "b", "c", "abc@example.com",
                     "Regularpassword1@");
+            verifToken = new EmailVerificationToken(null, "tokenLengthShouldBeExactly36CharsABC",
+                    LocalDateTime.now(clock), LocalDateTime.now(clock).plusDays(7), false, user);
             role = new Role(1L, "ROLE_USER");
         }
 
@@ -177,6 +186,99 @@ public class AuthServiceImplTests {
 
             Mockito.verify(userRepository).findByEmail(Mockito.anyString());
             Mockito.verify(roleRepository).findByName(Mockito.anyString());
+        }
+
+        @Test // Nije dobro zasto se baca NPE???
+        void registerFailTokenNullTest(){
+
+            Mockito.when(userRepository.findByEmail(Mockito.anyString()))
+                    .thenReturn(Optional.empty());
+
+            Mockito.when(roleRepository.findByName(Mockito.anyString()))
+                    .thenReturn(Optional.of(role));
+
+            Mockito.when(userMapper.registerToEntity(Mockito.any(RegisterDto.class)))
+                            .thenReturn(user);
+
+            Mockito.when(tokenService.generateToken(Mockito.any(User.class)))
+                    .thenReturn(null);
+
+            Assertions.assertThrows(RegistrationFailedException.class, () -> {
+                authService.register(registerDto);
+
+                Mockito.verify(userRepository, Mockito.never()).saveAndFlush(Mockito.any(User.class));// promeniti u Mockito.never()
+                Mockito.verify(tokenService, Mockito.never()).saveToken(Mockito.any(EmailVerificationToken.class)); // promeniti u Mockito.never()
+                Mockito.verify(notificationService, Mockito.never())
+                        .sendVerificationEmail(Mockito.anyString(), Mockito.anyString());
+            });
+
+        }
+
+        @Test
+        void registerFailSaveErrorTest(){
+
+            Mockito.when(userRepository.findByEmail(Mockito.anyString()))
+                    .thenReturn(Optional.empty());
+
+            Mockito.when(roleRepository.findByName(Mockito.anyString()))
+                    .thenReturn(Optional.of(role));
+
+            Mockito.when(userMapper.registerToEntity(Mockito.any(RegisterDto.class)))
+                    .thenReturn(user);
+
+            Mockito.doThrow(new RuntimeException())
+                    .when(userRepository)
+                    .saveAndFlush(Mockito.any(User.class));
+
+            Mockito.doReturn(verifToken)
+                    .when(tokenService)
+                    .generateToken(Mockito.any(User.class));
+
+            Mockito.when(userRepository.save(Mockito.any(User.class)))
+                    .thenReturn(user);
+
+            Assertions.assertThrows(RegistrationFailedException.class, () -> {
+                authService.register(registerDto);
+
+                Mockito.verify(tokenService, Mockito.never()).saveToken(verifToken);
+                Mockito.verify(notificationService, Mockito.never())
+                        .sendVerificationEmail(Mockito.anyString(), Mockito.anyString());
+            });
+
+        }
+
+        @Test
+        void registerSuccessTest(){
+
+            Mockito.when(userRepository.findByEmail(Mockito.anyString()))
+                    .thenReturn(Optional.empty());
+
+            Mockito.when(roleRepository.findByName(Mockito.anyString()))
+                    .thenReturn(Optional.of(role));
+
+            Mockito.when(userMapper.registerToEntity(Mockito.any(RegisterDto.class)))
+                    .thenReturn(user);
+
+            Mockito.doReturn(verifToken)
+                    .when(tokenService)
+                    .generateToken(Mockito.any(User.class));
+
+            Mockito.when(userRepository.saveAndFlush(Mockito.any(User.class)))
+                    .thenReturn(user);
+
+            Mockito.doNothing()
+                    .when(tokenService)
+                    .saveToken(verifToken);
+
+            Mockito.doNothing()
+                    .when(notificationService)
+                    .sendVerificationEmail(user.getEmail(), verifToken.getToken());
+
+            String s = authService.register(registerDto);
+
+            Assertions.assertNotNull(s);
+            Assertions.assertFalse(s.isEmpty());
+
         }
 
     }

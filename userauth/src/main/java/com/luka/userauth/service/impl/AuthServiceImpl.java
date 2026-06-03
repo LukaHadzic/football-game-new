@@ -2,6 +2,7 @@ package com.luka.userauth.service.impl;
 
 import com.luka.userauth.dto.LoginDto;
 import com.luka.userauth.dto.LoginResponseDto;
+import com.luka.userauth.entity.EmailVerificationToken;
 import com.luka.userauth.exception.exceptionclasses.UserNotFoundException;
 import com.luka.userauth.dto.RegisterDto;
 import com.luka.userauth.entity.Role;
@@ -12,6 +13,8 @@ import com.luka.userauth.mapper.UserMapper;
 import com.luka.userauth.repository.RoleRepository;
 import com.luka.userauth.repository.UserRepository;
 import com.luka.userauth.service.AuthService;
+import com.luka.userauth.service.NotificationService;
+import com.luka.userauth.service.TokenService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,14 +33,18 @@ public class AuthServiceImpl implements AuthService {
     private final TransactionTemplate  transactionTemplate;
     private final UserMapper userMapper;
     private final Clock clock;
+    private final TokenService tokenService;
+    private final NotificationService notificationService;
 
-    public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, TransactionTemplate transactionTemplate, UserMapper userMapper, Clock clock) {
+    public AuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, TransactionTemplate transactionTemplate, UserMapper userMapper, Clock clock, TokenService tokenService, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.transactionTemplate = transactionTemplate;
         this.userMapper = userMapper;
         this.clock = clock;
+        this.tokenService = tokenService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -57,10 +64,17 @@ public class AuthServiceImpl implements AuthService {
         user.setCreatedAt(LocalDateTime.now(clock));
         user.addRole(defaultRole);
 
+        //Call TokenService to generate token
+        EmailVerificationToken generatedToken = tokenService.generateToken(user);
+
+        if (generatedToken == null){
+            throw new RegistrationFailedException("Server error - cannot finish registration, cannot generate refresh token.");
+        }
+
         //Open transaction to save User and token
         try {
             transactionTemplate.execute(status -> {
-                userRepository.save(user);
+                saveTokenAndUser(user, generatedToken, defaultRole);
                 return null;
             });
         }catch(Exception e) {
@@ -68,7 +82,15 @@ public class AuthServiceImpl implements AuthService {
             throw new RegistrationFailedException("Registration failed, please try again later.");
         }
 
-        return "Successfully registered.";
+        //Call NotificationService to send email to provided email address
+        notificationService.sendVerificationEmail(user.getEmail(), generatedToken.getToken());
+
+        return "Check provided email's inbox in order to verify Your identity.";
+    }
+
+    protected void saveTokenAndUser(User user, EmailVerificationToken emailVerificationToken, Role defaultRole) {
+        userRepository.saveAndFlush(user);
+        tokenService.saveToken(emailVerificationToken);
     }
 
     @Override
