@@ -103,6 +103,13 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      DB_URL: ${{ secrets.DB_URL_DEPLOY }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME_DEPLOY }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD_DEPLOY }}
+      MAIL_HOST: ${{ secrets.MAIL_HOST }}
+      MAIL_PORT: ${{ secrets.MAIL_PORT }}
+      MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+      MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
       APP_NAME_MAP: |
         {
           "userauth": "USER_AUTHENTICATION_APP"
