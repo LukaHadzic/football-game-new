@@ -95,7 +95,7 @@ jobs:
           -Dsonar.organization=${{ secrets.SONAR_ORG }} \
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}-${{ matrix.service }} \
           -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-          -Dsonar.coverage.jacoco.xmlReportPaths=${{ matrix.service }}/target/site/jacoco/jacoco.xml
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
   deploy:
     needs: build_and_test
