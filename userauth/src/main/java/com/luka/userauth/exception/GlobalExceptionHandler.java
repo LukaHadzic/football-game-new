@@ -24,4 +24,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(registrationFailedException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(TokenNotValidException.class)
+    public ResponseEntity<String> tokenInvalid(RegistrationFailedException registrationFailedException) {
+        return new ResponseEntity<>(registrationFailedException.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(VerificationFailedException.class)
+    public ResponseEntity<String> verificationFailed(VerificationFailedException verificationFailedException) {
+        return new ResponseEntity<>(verificationFailedException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

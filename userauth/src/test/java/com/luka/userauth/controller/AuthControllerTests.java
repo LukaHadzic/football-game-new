@@ -7,6 +7,8 @@ import com.luka.userauth.dto.UserDto;
 import com.luka.userauth.entity.Role;
 import com.luka.userauth.entity.User;
 import com.luka.userauth.exception.exceptionclasses.UserNotFoundException;
+import com.luka.userauth.exception.exceptionclasses.VerificationFailedException;
+import com.luka.userauth.service.VerificationService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import com.luka.userauth.config.TestClockConfig;
@@ -42,6 +44,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @Import({TestClockConfig.class, UserMapper.class})
@@ -68,6 +71,9 @@ public class AuthControllerTests {
 
     @MockitoBean
     private AuthService authService;
+
+    @MockitoBean
+    private VerificationService verificationService;
 
     @Nested
     class LoginTests{
@@ -195,6 +201,51 @@ public class AuthControllerTests {
                     .andExpect(MockMvcResultMatchers.content().string(message));
 
             Mockito.verify(authService).register(regDto);
+        }
+    }
+
+    @Nested
+    class VerificationTests{
+
+        private User user;
+        private String token;
+        private String controllerMessage = "Email successfully verified.";
+
+        @BeforeEach
+        void setup(){
+
+            token = "SomeValidToken";
+
+            user = new User(1L, "userNick1", "user1Name", "user1Surname", "user1@mail.com", "ValidPassword123@",
+                    false, LocalDateTime.now(clock), null);
+        }
+
+        @Test
+        void verificationFailInvalidToken() throws Exception {
+
+            Mockito.when(verificationService.verifyUser(Mockito.anyString()))
+                    .thenThrow(VerificationFailedException.class);
+
+            mockMvc.perform(get("/auth/validate-email")
+                            .with(csrf())
+                            .param("token", token))
+                    .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+
+            Mockito.verify(verificationService).verifyUser(Mockito.anyString());
+        }
+
+        @Test
+        void verificationSuccessTest() throws Exception {
+            Mockito.when(verificationService.verifyUser(token))
+                    .thenReturn(user);
+
+            mockMvc.perform(get("/auth/validate-email")
+                            .param("token", token))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(MockMvcResultMatchers
+                            .content().string(controllerMessage));
+
+            Mockito.verify(verificationService).verifyUser(token);
         }
     }
 }
