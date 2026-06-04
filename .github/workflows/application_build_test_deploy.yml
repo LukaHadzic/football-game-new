@@ -141,7 +141,7 @@ jobs:
           az webapp deploy \
           --resource-group FirstResourceGroup \
           --name $APP_NAME \
-          --src-path ${{ matrix.service }}/target/*.jar \
+          --src-path ${{ matrix.service }}/target/${{ matrix.service }}.jar \
           --type jar
 
 
