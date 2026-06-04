@@ -137,12 +137,15 @@ jobs:
         run: |
           APP_NAME=$(echo '${{ env.APP_NAME_MAP }}' | jq -r --arg svc "${{ matrix.service }}" '.[$svc]')
           echo "Deploying to: $APP_NAME"
+          JAR=$(find . -name "${{ matrix.service }}.jar" | head -n 1)
+          echo "Jar path is: $JAR"
           
           az webapp deploy \
           --resource-group FirstResourceGroup \
           --name $APP_NAME \
-          --src-path ${{ matrix.service }}/target/${{ matrix.service }}.jar \
+          --src-path $JAR \
           --type jar
+
 
 
 
