@@ -87,7 +87,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.service }}
-          path: ${{ matrix.service }}/target/*.jar
+          path: ${{ matrix.service }}/target/${{ matrix.service }}.jar
 
       - name: SonarQube analysis
         run: |
