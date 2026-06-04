@@ -112,7 +112,7 @@ jobs:
       MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
       APP_NAME_MAP: |
         {
-          "userauth": "USER_AUTHENTICATION_APP"
+          "userauth": "userauthapp"
         }
 
     strategy:
@@ -135,7 +135,8 @@ jobs:
 
       - name: Deploy ${{ matrix.service }} JAR to Microsoft Azure
         run: |
-          APP_NAME=$(echo '${{ env.APP_NAME_MAP }}' | jq -r '."${{ matrix.service }}"')
+          APP_NAME=$(echo '${{ env.APP_NAME_MAP }}' | jq -r --arg svc "${{ matrix.service }}" '.[$svc]')
+          echo "Deploying to: $APP_NAME"
           
           az webapp deploy \
           --resource-group FirstResourceGroup \
