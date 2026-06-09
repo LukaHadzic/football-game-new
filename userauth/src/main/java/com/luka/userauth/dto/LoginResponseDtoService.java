@@ -1,13 +1,14 @@
 package com.luka.userauth.dto;
 
-public class LoginResponseDto {
+public class LoginResponseDtoService {
 
     private String accessToken;
     private UserDto userDto;
+    private String refreshToken;
 
-    public LoginResponseDto(String accessToken, UserDto userDto) {
-
+    public LoginResponseDtoService(String accessToken, UserDto userDto, String refreshToken) {
         this.userDto = userDto;
+        this.refreshToken = refreshToken;
         this.accessToken = accessToken;
     }
 
@@ -17,6 +18,14 @@ public class LoginResponseDto {
 
     public void setUserDto(UserDto userDto) {
         this.userDto = userDto;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public String getAccessToken() {

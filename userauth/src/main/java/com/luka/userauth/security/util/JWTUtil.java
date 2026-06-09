@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
  * Class responsible for JWT token. It is utility class that can generate, validate or extract data from
  * JWT token.
  *
- * @Author Luka
- * @Version 1.0
+ * @author Luka
+ * @version 1.0
  * @since 17. May 2026.
  */
 @Component
