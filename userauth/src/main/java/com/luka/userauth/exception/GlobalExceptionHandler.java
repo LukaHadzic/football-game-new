@@ -34,4 +34,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(verificationFailedException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(JWTInvalidException.class)
+    public ResponseEntity<String> jwtInvalidToken(JWTInvalidException jWTInvalidException) {
+        return new ResponseEntity<>(jWTInvalidException.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
 }
