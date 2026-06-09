@@ -34,4 +34,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(verificationFailedException.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(RefreshTokenException.class)
+    public ResponseEntity<String> jwtInvalidToken(RefreshTokenException refreshTokenException) {
+        return new ResponseEntity<>(refreshTokenException.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 }

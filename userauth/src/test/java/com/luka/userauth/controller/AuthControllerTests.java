@@ -4,10 +4,14 @@ import com.luka.userauth.controller.AuthController;
 import com.luka.userauth.dto.LoginDto;
 import com.luka.userauth.dto.LoginResponseDto;
 import com.luka.userauth.dto.UserDto;
+import com.luka.userauth.entity.RefreshToken;
 import com.luka.userauth.entity.Role;
 import com.luka.userauth.entity.User;
+import com.luka.userauth.exception.exceptionclasses.RefreshTokenException;
 import com.luka.userauth.exception.exceptionclasses.UserNotFoundException;
 import com.luka.userauth.exception.exceptionclasses.VerificationFailedException;
+import com.luka.userauth.security.util.RefreshTokenUtil;
+import com.luka.userauth.service.RefreshTokenService;
 import com.luka.userauth.service.VerificationService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,6 +79,12 @@ public class AuthControllerTests {
     @MockitoBean
     private VerificationService verificationService;
 
+    @MockitoBean
+    private RefreshTokenUtil refreshTokenUtil;
+
+    @MockitoBean
+    private RefreshTokenService refreshTokenService;
+
     @Nested
     class LoginTests{
         private LoginDto loginDto;
@@ -83,6 +93,7 @@ public class AuthControllerTests {
         private String token;
         private HttpServletResponse httpResp;
         private LoginResponseDto loginResponseDto;
+        private RefreshToken refreshToken;
 
         @BeforeEach
         void setup(){
@@ -96,7 +107,10 @@ public class AuthControllerTests {
 
             userDto = userMapper.toUserDto(user);
 
-            loginResponseDto = new LoginResponseDto(userDto);
+            refreshToken = new RefreshToken(1L, "refreshToken", false, LocalDateTime.now(clock),
+                    LocalDateTime.now(clock).plusDays(1), user);
+
+            loginResponseDto = new LoginResponseDto(userDto, refreshToken.getToken());
         }
 
 
@@ -109,6 +123,8 @@ public class AuthControllerTests {
                     .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
             Mockito.verify(authService, Mockito.never()).login(loginDto);
+            Mockito.verify(refreshTokenUtil, Mockito.never())
+                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
         }
 
         @ParameterizedTest
@@ -122,6 +138,28 @@ public class AuthControllerTests {
                     .andExpect(MockMvcResultMatchers.status().isNotFound());
 
             Mockito.verify(authService).login(loginDto);
+            Mockito.verify(refreshTokenUtil, Mockito.never())
+                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
+        }
+
+        @ParameterizedTest
+        @CsvFileSource(resources = "/mock_valid_login_requests.csv", useHeadersInDisplayName = true)
+        void loginFailRefreshTokenErrorTest(@AggregateWith(LoginDtoAggregator.class) LoginDto loginDto) throws Exception {
+            Mockito.when(authService.login(loginDto))
+                    .thenReturn(loginResponseDto);
+
+            Mockito.doThrow(RefreshTokenException.class)
+                    .when(refreshTokenUtil)
+                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
+
+            mockMvc.perform(post("/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(loginDto)))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            Mockito.verify(authService).login(loginDto);
+            Mockito.verify(refreshTokenUtil)
+                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
         }
 
         @ParameterizedTest
@@ -129,6 +167,10 @@ public class AuthControllerTests {
         void loginSuccessTest(@AggregateWith(LoginDtoAggregator.class) LoginDto loginDto) throws Exception {
             Mockito.when(authService.login(loginDto))
                     .thenReturn(loginResponseDto);
+
+            Mockito.doNothing()
+                    .when(refreshTokenUtil)
+                    .addRefreshToken(httpResp, token);
 
             mockMvc.perform(post("/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -145,6 +187,8 @@ public class AuthControllerTests {
                     .andExpect(MockMvcResultMatchers.status().isOk());
 
             Mockito.verify(authService).login(loginDto);
+            Mockito.verify(refreshTokenUtil)
+                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
         }
 
     }
@@ -210,6 +254,7 @@ public class AuthControllerTests {
         private User user;
         private String token;
         private String controllerMessage = "Email successfully verified.";
+        private RefreshToken refreshToken;
 
         @BeforeEach
         void setup(){
@@ -218,6 +263,9 @@ public class AuthControllerTests {
 
             user = new User(1L, "userNick1", "user1Name", "user1Surname", "user1@mail.com", "ValidPassword123@",
                     false, LocalDateTime.now(clock), null);
+
+            refreshToken = new RefreshToken(1L, "refreshToken", false, LocalDateTime.now(clock),
+                    LocalDateTime.now(clock).plusDays(1), user);
         }
 
         @Test
@@ -235,9 +283,28 @@ public class AuthControllerTests {
         }
 
         @Test
+        void verificationFailRefreshTokenCreationErrorTest() throws Exception {
+            Mockito.when(verificationService.verifyUser(token))
+                    .thenReturn(user);
+
+            Mockito.when(refreshTokenService.create(user))
+                    .thenThrow(RefreshTokenException.class);
+
+            mockMvc.perform(get("/auth/validate-email")
+                            .param("token", token))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            Mockito.verify(verificationService).verifyUser(token);
+            Mockito.verify(refreshTokenService).create(user);
+        }
+
+        @Test
         void verificationSuccessTest() throws Exception {
             Mockito.when(verificationService.verifyUser(token))
                     .thenReturn(user);
+
+            Mockito.when(refreshTokenService.create(user))
+                    .thenReturn(refreshToken);
 
             mockMvc.perform(get("/auth/validate-email")
                             .param("token", token))
@@ -246,6 +313,40 @@ public class AuthControllerTests {
                             .content().string(controllerMessage));
 
             Mockito.verify(verificationService).verifyUser(token);
+            Mockito.verify(refreshTokenService).create(user);
+        }
+    }
+
+    @Nested
+    class RefreshTests{
+
+        private RefreshToken refreshToken;
+        private String accessToken = "someVAlidAccessToken";
+        private User user;
+        private String tokenString = "someValidRefreshTokenString";
+////        private RefreshDto refreshDto;
+
+//        @BeforeEach
+//        void setUp(){
+//
+//            user = new User(1L, "userNick1", "user1Name", "user1Surname",
+//                    "user1@mail.com", "ValidPassword123@", false, LocalDateTime.now(clock));
+//
+//            refreshToken = new RefreshToken(1L, "refreshToken", false, LocalDateTime.now(clock),
+//                    LocalDateTime.now(clock).plusDays(1), user);
+//
+        ////            refreshDto = new RefreshDto(accessToken);
+//
+//            mockMvc.perform(post("/auth/refresh"));
+//
+//        }
+
+        @Test
+        void successRefreshTest(){
+            Mockito.when(refreshTokenService.rotate(Mockito.anyString()))
+                    .thenReturn(refreshToken);
+
+
         }
     }
 }
