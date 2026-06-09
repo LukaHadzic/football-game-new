@@ -6,6 +6,7 @@ import com.luka.userauth.entity.User;
 import com.luka.userauth.exception.exceptionclasses.RefreshTokenException;
 import com.luka.userauth.repository.RefreshTokenRepository;
 import com.luka.userauth.service.RefreshTokenService;
+import jakarta.validation.constraints.AssertTrue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -121,7 +122,7 @@ public class RefreshTokenServiceImplTests {
                 .thenReturn(Optional.empty());
 
         Assertions.assertThrows(RefreshTokenException.class, () -> {
-           refreshTokenService.validate(TOKEN_STRING);
+            refreshTokenService.validate(TOKEN_STRING);
         });
     }
 
@@ -199,7 +200,7 @@ public class RefreshTokenServiceImplTests {
                 .thenReturn(Optional.empty());
         Mockito.doReturn(dbToken)
                 .when(refreshTokenService)
-                        .create(user);
+                .create(user);
 
         RefreshToken r =  refreshTokenService.validateOnLogin(user);
 
@@ -216,7 +217,7 @@ public class RefreshTokenServiceImplTests {
                 .validate(dbToken.getToken());
 
         Assertions.assertThrows(RefreshTokenException.class, () -> {
-           refreshTokenService.rotate(dbToken.getToken());
+            refreshTokenService.rotate(dbToken.getToken());
         });
 
         Mockito.verify(refreshTokenService).validate(dbToken.getToken());
@@ -233,7 +234,7 @@ public class RefreshTokenServiceImplTests {
                 .when(refreshTokenService)
                 .revoke(dbToken.getToken());
         Mockito.when(refreshTokenRepository.save(Mockito.any(RefreshToken.class)))
-                        .thenReturn(dbToken);
+                .thenReturn(dbToken);
 
         RefreshToken r = refreshTokenService.rotate(dbToken.getToken());
 
@@ -250,7 +251,7 @@ public class RefreshTokenServiceImplTests {
                 .validate(dbToken.getToken());
 
         Assertions.assertThrows(RefreshTokenException.class, () -> {
-           refreshTokenService.rotate(dbToken.getToken());
+            refreshTokenService.rotate(dbToken.getToken());
         });
     }
 
@@ -292,7 +293,7 @@ public class RefreshTokenServiceImplTests {
     public void revokeFailTokenNotFoundTest(){
 
         Mockito.when(refreshTokenRepository.revokeByToken(dbToken.getToken()))
-                        .thenReturn(0);
+                .thenReturn(0);
 
         Assertions.assertThrows(RefreshTokenException.class, () -> {
             refreshTokenService.revoke(dbToken.getToken());

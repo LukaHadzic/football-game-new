@@ -1,15 +1,15 @@
 package com.luka.userauth.dto;
 
-import com.luka.userauth.entity.RefreshToken;
+public class LoginResponseDtoService {
 
-public class LoginResponseDto {
-
+    private String accessToken;
     private UserDto userDto;
     private String refreshToken;
 
-    public LoginResponseDto(UserDto userDto, String refreshToken) {
+    public LoginResponseDtoService(String accessToken, UserDto userDto, String refreshToken) {
         this.userDto = userDto;
         this.refreshToken = refreshToken;
+        this.accessToken = accessToken;
     }
 
     public UserDto getUserDto() {
@@ -26,5 +26,13 @@ public class LoginResponseDto {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 }

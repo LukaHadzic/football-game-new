@@ -1,22 +1,20 @@
 package com.luka.userauth.controller;
 
-import com.luka.userauth.controller.AuthController;
-import com.luka.userauth.dto.LoginDto;
-import com.luka.userauth.dto.LoginResponseDto;
-import com.luka.userauth.dto.UserDto;
+import com.luka.userauth.dto.*;
 import com.luka.userauth.entity.RefreshToken;
 import com.luka.userauth.entity.Role;
 import com.luka.userauth.entity.User;
 import com.luka.userauth.exception.exceptionclasses.RefreshTokenException;
 import com.luka.userauth.exception.exceptionclasses.UserNotFoundException;
 import com.luka.userauth.exception.exceptionclasses.VerificationFailedException;
+import com.luka.userauth.security.util.JWTUtil;
 import com.luka.userauth.security.util.RefreshTokenUtil;
 import com.luka.userauth.service.RefreshTokenService;
+import com.luka.userauth.service.TokenService;
 import com.luka.userauth.service.VerificationService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import com.luka.userauth.config.TestClockConfig;
-import com.luka.userauth.dto.RegisterDto;
 import com.luka.userauth.exception.GlobalExceptionHandler;
 import com.luka.userauth.exception.exceptionclasses.RegistrationFailedException;
 import com.luka.userauth.mapper.UserMapper;
@@ -75,123 +73,16 @@ public class AuthControllerTests {
 
     @MockitoBean
     private AuthService authService;
-
+    @MockitoBean
+    private TokenService tokenService;
     @MockitoBean
     private VerificationService verificationService;
-
     @MockitoBean
     private RefreshTokenUtil refreshTokenUtil;
-
     @MockitoBean
     private RefreshTokenService refreshTokenService;
-
-    @Nested
-    class LoginTests{
-        private LoginDto loginDto;
-        private User user;
-        private UserDto userDto;
-        private String token;
-        private HttpServletResponse httpResp;
-        private LoginResponseDto loginResponseDto;
-        private RefreshToken refreshToken;
-
-        @BeforeEach
-        void setup(){
-            token = "SomeValidToken";
-
-            user = new User(1L, "userNick1", "user1Name", "user1Surname",
-                    "user1@mail.com", "ValidPassword123@", false, LocalDateTime.now(clock));
-
-            Role role = new Role(1L, "ROLE_USER");
-            user.addRole(role);
-
-            userDto = userMapper.toUserDto(user);
-
-            refreshToken = new RefreshToken(1L, "refreshToken", false, LocalDateTime.now(clock),
-                    LocalDateTime.now(clock).plusDays(1), user);
-
-            loginResponseDto = new LoginResponseDto(userDto, refreshToken.getToken());
-        }
-
-
-        @ParameterizedTest
-        @CsvFileSource(resources = "/mock_bad_login_requests.csv", useHeadersInDisplayName = true)
-        void loginFailInvalidLoginRequestsTest(@AggregateWith(LoginDtoAggregator.class) LoginDto loginDto) throws  Exception{
-            mockMvc.perform(post("/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(loginDto)))
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
-
-            Mockito.verify(authService, Mockito.never()).login(loginDto);
-            Mockito.verify(refreshTokenUtil, Mockito.never())
-                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
-        }
-
-        @ParameterizedTest
-        @CsvFileSource(resources = "/mock_valid_login_requests.csv", useHeadersInDisplayName = true)
-        void loginFailAuthenticationErrorTest(@AggregateWith(LoginDtoAggregator.class) LoginDto loginDto) throws Exception {
-            Mockito.when(authService.login(loginDto))
-                    .thenThrow(UserNotFoundException.class);
-
-            mockMvc.perform(post("/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(loginDto)))
-                    .andExpect(MockMvcResultMatchers.status().isNotFound());
-
-            Mockito.verify(authService).login(loginDto);
-            Mockito.verify(refreshTokenUtil, Mockito.never())
-                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
-        }
-
-        @ParameterizedTest
-        @CsvFileSource(resources = "/mock_valid_login_requests.csv", useHeadersInDisplayName = true)
-        void loginFailRefreshTokenErrorTest(@AggregateWith(LoginDtoAggregator.class) LoginDto loginDto) throws Exception {
-            Mockito.when(authService.login(loginDto))
-                    .thenReturn(loginResponseDto);
-
-            Mockito.doThrow(RefreshTokenException.class)
-                    .when(refreshTokenUtil)
-                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
-
-            mockMvc.perform(post("/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(loginDto)))
-                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
-
-            Mockito.verify(authService).login(loginDto);
-            Mockito.verify(refreshTokenUtil)
-                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
-        }
-
-        @ParameterizedTest
-        @CsvFileSource(resources = "/mock_valid_login_requests.csv", useHeadersInDisplayName = true)
-        void loginSuccessTest(@AggregateWith(LoginDtoAggregator.class) LoginDto loginDto) throws Exception {
-            Mockito.when(authService.login(loginDto))
-                    .thenReturn(loginResponseDto);
-
-            Mockito.doNothing()
-                    .when(refreshTokenUtil)
-                    .addRefreshToken(httpResp, token);
-
-            mockMvc.perform(post("/auth/login")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(loginDto)))
-                    .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(MockMvcResultMatchers
-                            .jsonPath("$.userDto.nick").value(userDto.getNick()))
-                    .andExpect(MockMvcResultMatchers
-                            .jsonPath("$.userDto.surname").value(userDto.getSurname()))
-                    .andExpect(MockMvcResultMatchers
-                            .jsonPath("$.userDto.name").value(userDto.getName()))
-                    .andExpect(MockMvcResultMatchers
-                            .jsonPath("$.userDto.email").value(userDto.getEmail()))
-                    .andExpect(MockMvcResultMatchers.status().isOk());
-
-            Mockito.verify(authService).login(loginDto);
-            Mockito.verify(refreshTokenUtil)
-                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
-        }
-
-    }
+    @MockitoBean
+    private JWTUtil jwtUtil;
 
     @Nested
     class RegisterTests{
@@ -318,35 +209,113 @@ public class AuthControllerTests {
     }
 
     @Nested
-    class RefreshTests{
-
-        private RefreshToken refreshToken;
-        private String accessToken = "someVAlidAccessToken";
+    class LoginTests{
+        private LoginDto loginDto;
         private User user;
-        private String tokenString = "someValidRefreshTokenString";
-////        private RefreshDto refreshDto;
+        private UserDto userDto;
+        private String token;
+        private RefreshToken refreshToken;
+        private LoginResponseDtoService dtoRespService;
+        private LoginResponseDtoController dtoRespController;
+        private HttpServletResponse httpResp;
 
-//        @BeforeEach
-//        void setUp(){
-//
-//            user = new User(1L, "userNick1", "user1Name", "user1Surname",
-//                    "user1@mail.com", "ValidPassword123@", false, LocalDateTime.now(clock));
-//
-//            refreshToken = new RefreshToken(1L, "refreshToken", false, LocalDateTime.now(clock),
-//                    LocalDateTime.now(clock).plusDays(1), user);
-//
-        ////            refreshDto = new RefreshDto(accessToken);
-//
-//            mockMvc.perform(post("/auth/refresh"));
-//
-//        }
+        @BeforeEach
+        void setup(){
+            token = "SomeValidToken";
 
-        @Test
-        void successRefreshTest(){
-            Mockito.when(refreshTokenService.rotate(Mockito.anyString()))
-                    .thenReturn(refreshToken);
+            user = new User(1L, "userNick1", "user1Name", "user1Surname",
+                    "user1@mail.com", "ValidPassword123@", false, LocalDateTime.now(clock));
+
+            Role role = new Role(1L, "ROLE_USER");
+            user.addRole(role);
+
+            userDto = userMapper.toUserDto(user);
+
+            refreshToken = new RefreshToken(1L, "refreshToken", false, LocalDateTime.now(clock),
+                    LocalDateTime.now(clock).plusDays(1), user);
+
+            dtoRespService = new LoginResponseDtoService(token, userDto, refreshToken.getToken());
+
+            dtoRespController = new LoginResponseDtoController(token, userDto);
+        }
 
 
+        @ParameterizedTest
+        @CsvFileSource(resources = "/mock_bad_login_requests.csv", useHeadersInDisplayName = true)
+        void loginFailInvalidLoginRequestsTest(@AggregateWith(LoginDtoAggregator.class) LoginDto loginDto) throws  Exception{
+            mockMvc.perform(post("/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(loginDto)))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            Mockito.verify(authService, Mockito.never()).login(loginDto);
+            Mockito.verify(refreshTokenUtil, Mockito.never())
+                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
+        }
+
+        @ParameterizedTest
+        @CsvFileSource(resources = "/mock_valid_login_requests.csv", useHeadersInDisplayName = true)
+        void loginFailAuthenticationErrorTest(@AggregateWith(LoginDtoAggregator.class) LoginDto loginDto) throws Exception {
+            Mockito.when(authService.login(loginDto))
+                    .thenThrow(UserNotFoundException.class);
+
+            mockMvc.perform(post("/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(loginDto)))
+                    .andExpect(MockMvcResultMatchers.status().isNotFound());
+
+            Mockito.verify(authService).login(loginDto);
+            Mockito.verify(refreshTokenUtil, Mockito.never())
+                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
+        }
+
+        @ParameterizedTest
+        @CsvFileSource(resources = "/mock_valid_login_requests.csv", useHeadersInDisplayName = true)
+        void loginFailRefreshTokenErrorTest(@AggregateWith(LoginDtoAggregator.class) LoginDto loginDto) throws Exception {
+            Mockito.when(authService.login(loginDto))
+                    .thenReturn(dtoRespService);
+
+            Mockito.doThrow(RefreshTokenException.class)
+                    .when(refreshTokenUtil)
+                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
+
+            mockMvc.perform(post("/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(loginDto)))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+            Mockito.verify(authService).login(loginDto);
+            Mockito.verify(refreshTokenUtil)
+                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
+        }
+
+        @ParameterizedTest
+        @CsvFileSource(resources = "/mock_valid_login_requests.csv", useHeadersInDisplayName = true)
+        void loginSuccessTest(@AggregateWith(LoginDtoAggregator.class) LoginDto loginDto) throws Exception {
+            Mockito.when(authService.login(loginDto))
+                    .thenReturn(dtoRespService);
+
+            Mockito.doNothing()
+                    .when(refreshTokenUtil)
+                    .addRefreshToken(httpResp, token);
+
+            mockMvc.perform(post("/auth/login")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(loginDto)))
+                    .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(token))
+                    .andExpect(MockMvcResultMatchers
+                            .jsonPath("$.userDto.nick").value(userDto.getNick()))
+                    .andExpect(MockMvcResultMatchers
+                            .jsonPath("$.userDto.surname").value(userDto.getSurname()))
+                    .andExpect(MockMvcResultMatchers
+                            .jsonPath("$.userDto.name").value(userDto.getName()))
+                    .andExpect(MockMvcResultMatchers
+                            .jsonPath("$.userDto.email").value(userDto.getEmail()))
+                    .andExpect(MockMvcResultMatchers.status().isOk());
+
+            Mockito.verify(authService).login(loginDto);
+            Mockito.verify(refreshTokenUtil)
+                    .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
         }
     }
 }

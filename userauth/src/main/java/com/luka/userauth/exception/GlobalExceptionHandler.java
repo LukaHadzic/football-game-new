@@ -39,4 +39,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(refreshTokenException.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(JWTInvalidException.class)
+    public ResponseEntity<String> jwtInvalidToken(JWTInvalidException jWTInvalidException) {
+        return new ResponseEntity<>(jWTInvalidException.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
 }
