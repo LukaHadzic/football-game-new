@@ -14,6 +14,7 @@ import com.luka.userauth.exception.exceptionclasses.RegistrationFailedException;
 import com.luka.userauth.exception.exceptionclasses.UserAlreadyExistsException;
 import com.luka.userauth.repository.RoleRepository;
 import com.luka.userauth.repository.UserRepository;
+import com.luka.userauth.security.util.JWTUtil;
 import com.luka.userauth.service.AuthService;
 import com.luka.userauth.service.NotificationService;
 import com.luka.userauth.service.TokenService;
@@ -81,6 +82,9 @@ public class AuthServiceImplTests {
         private LoginDto loginDto;
         private UserDto userDto;
 
+        @MockitoBean
+        private JWTUtil jwtUtil;
+
         @BeforeEach
         void setUp(){
             loginDto = new LoginDto("Nick1", "PasswordForUser1@");
@@ -131,6 +135,8 @@ public class AuthServiceImplTests {
             Mockito.when(passwordEncoder.matches(Mockito.anyString(), Mockito.anyString()))
                     .thenReturn(true);
 
+            Mockito.when(jwtUtil.generateToken(Mockito.eq(user))).thenReturn("ReturnedJWTTokenString");
+
             Mockito.when(userMapper.toUserDto(Mockito.any(User.class)))
                     .thenReturn(userDto);
 
@@ -138,6 +144,7 @@ public class AuthServiceImplTests {
 
             Assertions.assertNotNull(l);
 
+            Mockito.verify(jwtUtil).generateToken(user);
             Mockito.verify(userMapper).toUserDto(Mockito.any(User.class));
 
         }

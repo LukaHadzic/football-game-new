@@ -96,7 +96,7 @@ public class AuthControllerTests {
 
             userDto = userMapper.toUserDto(user);
 
-            loginResponseDto = new LoginResponseDto(userDto);
+            loginResponseDto = new LoginResponseDto(token, userDto);
         }
 
 
@@ -134,6 +134,7 @@ public class AuthControllerTests {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(loginDto)))
                     .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(token))
                     .andExpect(MockMvcResultMatchers
                             .jsonPath("$.userDto.nick").value(userDto.getNick()))
                     .andExpect(MockMvcResultMatchers
