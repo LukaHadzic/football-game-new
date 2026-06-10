@@ -12,6 +12,8 @@ import com.luka.userauth.security.util.RefreshTokenUtil;
 import com.luka.userauth.service.RefreshTokenService;
 import com.luka.userauth.service.TokenService;
 import com.luka.userauth.service.VerificationService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import com.luka.userauth.config.TestClockConfig;
@@ -317,6 +319,139 @@ public class AuthControllerTests {
             Mockito.verify(refreshTokenUtil)
                     .addRefreshToken(Mockito.any(HttpServletResponse.class), Mockito.anyString());
         }
+    }
+
+    @Nested
+    class RefreshTests{
+
+        private RefreshToken refreshToken;
+        private String accessToken = "someVAlidAccessToken";
+        private User user;
+        private String tokenString = "someValidRefreshTokenString";
+////        private RefreshDto refreshDto;
+
+//        @BeforeEach
+//        void setUp(){
+//
+//            user = new User(1L, "userNick1", "user1Name", "user1Surname",
+//                    "user1@mail.com", "ValidPassword123@", false, LocalDateTime.now(clock));
+//
+//            refreshToken = new RefreshToken(1L, "refreshToken", false, LocalDateTime.now(clock),
+//                    LocalDateTime.now(clock).plusDays(1), user);
+//
+        ////            refreshDto = new RefreshDto(accessToken);
+//
+//            mockMvc.perform(post("/auth/refresh"));
+//
+//        }
+
+        @Test
+        void successRefreshTest(){
+            Mockito.when(refreshTokenService.rotate(Mockito.anyString()))
+                    .thenReturn(refreshToken);
+
+            Mockito.when(jwtUtil.generateToken(Mockito.any(User.class)))
+                    .thenReturn(accessToken);
+
+        }
+    }
+
+    @Nested
+    class LogoutTests{
+        private String controllerMessage = "Logout successful.";
+        private String refreshTokenString = "someValidRefreshTokenString";
+
+        private Cookie cookie;
+
+        @BeforeEach
+        void setup(){
+            cookie = new Cookie("refreshToken", refreshTokenString);
+            cookie.setHttpOnly(true);
+            cookie.setSecure(false);
+            cookie.setPath("/auth");
+            cookie.setMaxAge(24 * 7 * 60 * 60);
+        }
+
+        @Test
+        void logoutSuccessTest() throws Exception {
+
+            Mockito.when(refreshTokenUtil.extractFromCookie(Mockito.any(HttpServletRequest.class)))
+                    .thenReturn(refreshTokenString);
+
+            Mockito.doNothing()
+                    .when(authService)
+                    .logout(refreshTokenString);
+
+            mockMvc.perform(post("/auth/logout").cookie(cookie))
+                    .andExpect(MockMvcResultMatchers.content().string(controllerMessage))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(MockMvcResultMatchers.cookie().doesNotExist("refreshToken"));
+//                    .andExpect(MockMvcResultMatchers.cookie().value("refreshToken", ""))
+//                    .andExpect(MockMvcResultMatchers.cookie().maxAge("refreshToken", 0))
+//                    .andExpect(MockMvcResultMatchers.cookie().httpOnly("refreshToken", true));
+
+            Mockito.verify(refreshTokenUtil).extractFromCookie(Mockito.any(HttpServletRequest.class));
+            Mockito.verify(authService).logout(refreshTokenString);
+            Mockito.verify(refreshTokenUtil).deleteRefreshToken(Mockito.any(HttpServletResponse.class));
+
+        }
+
+        @Test
+        void extractRefreshTokenFailTest() throws Exception {
+            Mockito.when(refreshTokenUtil.extractFromCookie(Mockito.any(HttpServletRequest.class)))
+                    .thenThrow(RuntimeException.class);
+
+            mockMvc.perform(post("/auth/logout").cookie(cookie))
+                    .andExpect(MockMvcResultMatchers.content().string(controllerMessage))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(MockMvcResultMatchers.cookie().doesNotExist("refreshToken"));
+
+            Mockito.verify(refreshTokenUtil).extractFromCookie(Mockito.any(HttpServletRequest.class));
+            Mockito.verify(authService, Mockito.never()).logout(refreshTokenString);
+            Mockito.verify(refreshTokenUtil).deleteRefreshToken(Mockito.any(HttpServletResponse.class));
+        }
+
+        @Test
+        void serviceLogoutFailTest() throws Exception {
+            Mockito.when(refreshTokenUtil.extractFromCookie(Mockito.any(HttpServletRequest.class)))
+                    .thenReturn(refreshTokenString);
+
+            Mockito.doThrow(RuntimeException.class)
+                    .when(authService)
+                    .logout(refreshTokenString);
+
+            mockMvc.perform(post("/auth/logout").cookie(cookie))
+                    .andExpect(MockMvcResultMatchers.cookie().doesNotExist("refreshToken"));
+
+            Mockito.verify(refreshTokenUtil).extractFromCookie(Mockito.any(HttpServletRequest.class));
+            Mockito.verify(authService).logout(refreshTokenString);
+            Mockito.verify(refreshTokenUtil).deleteRefreshToken(Mockito.any(HttpServletResponse.class));
+        }
+
+        @Test
+        void deleteRefreshTokenFailTest() throws Exception {
+            Mockito.when(refreshTokenUtil.extractFromCookie(Mockito.any(HttpServletRequest.class)))
+                    .thenReturn(refreshTokenString);
+
+            Mockito.doNothing()
+                    .when(authService)
+                    .logout(refreshTokenString);
+
+            Mockito.doThrow(RuntimeException.class)
+                    .when(refreshTokenUtil)
+                    .deleteRefreshToken(Mockito.any(HttpServletResponse.class));
+
+            mockMvc.perform(post("/auth/logout").cookie(cookie))
+                    .andExpect(MockMvcResultMatchers.content().string(controllerMessage))
+                    .andExpect(MockMvcResultMatchers.status().isOk())
+                    .andExpect(MockMvcResultMatchers.cookie().doesNotExist("refreshToken"));
+
+            Mockito.verify(refreshTokenUtil).extractFromCookie(Mockito.any(HttpServletRequest.class));
+            Mockito.verify(authService).logout(refreshTokenString);
+            Mockito.verify(refreshTokenUtil).deleteRefreshToken(Mockito.any(HttpServletResponse.class));
+
+        }
+
     }
 }
 

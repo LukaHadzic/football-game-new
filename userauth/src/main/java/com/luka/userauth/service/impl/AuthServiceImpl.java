@@ -120,4 +120,15 @@ public class AuthServiceImpl implements AuthService {
 
         return new LoginResponseDtoService(token, userMapper.toUserDto(user), newRefreshToken.getToken());
     }
+
+    @Override
+    public void logout(String token) {
+
+        if (token == null || token.isEmpty()) return;
+        RefreshToken dbToken = refreshTokenService.validate(token);
+
+        if (dbToken != null) {
+            refreshTokenService.revoke(token);
+        }
+    }
 }
