@@ -299,6 +299,64 @@ public class AuthServiceImplTests {
 
     }
 
+    @Nested
+    class LogoutTests{
+
+        private String token;
+
+        @Test
+        void logoutFailTokenNullTest(){
+            token = null;
+
+            authService.logout(token);
+
+            Mockito.verify(refreshTokenService, Mockito.never()).validate(Mockito.anyString());
+            Mockito.verify(refreshTokenService, Mockito.never()).revoke(Mockito.anyString());
+        }
+
+        @Test
+        void logoutFailTokenEmptyTest(){
+            token = "";
+
+            authService.logout(token);
+
+            Mockito.verify(refreshTokenService, Mockito.never()).validate(Mockito.anyString());
+            Mockito.verify(refreshTokenService, Mockito.never()).revoke(Mockito.anyString());
+        }
+
+        @Test
+        void logoutFailRefreshTokenNotExistsTest(){
+            //Fail or success
+            token = "IncorrectRefreshToken";
+
+            Mockito.when(refreshTokenService.validate(token))
+                    .thenReturn(null);
+
+            authService.logout(token);
+
+            Mockito.verify(refreshTokenService).validate(token);
+            Mockito.verify(refreshTokenService, Mockito.never()).revoke(Mockito.anyString());
+
+        }
+
+        @Test
+        void logoutSuccessTest(){
+            token = "CorrectRefreshToken";
+            refreshToken = new RefreshToken(1L, "tokenLengthShouldBeExactly36CharsABC", false,
+                    LocalDateTime.now(clock), LocalDateTime.now(clock).plusDays(7), user);
+
+            Mockito.when(refreshTokenService.validate(token))
+                    .thenReturn(refreshToken);
+
+            authService.logout(token);
+
+            Mockito.verify(refreshTokenService).validate(token);
+            Mockito.verify(refreshTokenService).revoke(token);
+
+        }
+
+    }
+
 }
 
 class RegisterDtoAggregator implements ArgumentsAggregator {

@@ -11,4 +11,6 @@ public interface AuthService {
 
     public LoginResponseDtoService login(LoginDto loginDto);
 
+    public void logout(String token);
+
 }

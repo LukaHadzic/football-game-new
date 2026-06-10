@@ -66,4 +66,18 @@ public class AuthController {
 
         return new ResponseEntity<>(new RefreshDto(jwtUtil.generateToken(newToken.getUser())), HttpStatus.OK);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest req, HttpServletResponse resp){
+        try{
+            authService.logout(refreshTokenUtil.extractFromCookie(req));
+        } catch (Exception e){
+
+        } finally {
+            try {
+                refreshTokenUtil.deleteRefreshToken(resp);
+            } catch (Exception e){}
+        }
+        return new ResponseEntity<>("Logout successful.", HttpStatus.OK);
+    }
 }
