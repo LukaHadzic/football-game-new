@@ -59,7 +59,7 @@ body {
 .PageMainPart .FormDiv {
     width: 20vw;
     margin-left: 60vw;
-    height: 12vw;
+    height: 24.7vw;
     text-align: left;
 }
 
@@ -70,8 +70,8 @@ body {
 
 .PageMainPart .FormDiv .InputDiv{
     width: 100%;
-    height: 27%;
-    margin-bottom: 6%;
+    height: 14%;
+    margin-bottom: 3%;
 }
 
 .PageMainPart .FormDiv input{
@@ -97,19 +97,19 @@ body {
     border: 1px solid var(--form-color);
 }
 
-.PageMainPart .FormDiv button{
+.PageMainPart .FormDiv .RegisterButton{
     width: 100%;
-    height: 27%;
+    height: 14%;
     font-family: 'outfit-light';
     font-size: 1.5vw;
     color: var(--form-color);
     box-sizing: border-box;
     border: 1px solid var(--form-color);
     background-color: unset;
-    margin-bottom: 6%;
+    margin-bottom: 3%;
 }
 
-.PageMainPart .FormDiv button:hover{
+.PageMainPart .FormDiv .RegisterButton:hover{
     cursor: pointer;
     /*background-color: var(--white);*/
     transition: 0.3s ease;
@@ -119,7 +119,7 @@ body {
 
 .PageMainPart .FormDiv .ErrorDiv {
     width: 140%;
-    margin-top: 6%;
+    margin-top: 0;
     font-family: 'outfit-light';
     color: var(--error);
     font-size: 1vw;
@@ -131,6 +131,7 @@ body {
     /*background-color: #aa3bff;*/
     position: absolute;
     left: -2.5vw;
+    bottom: -13vw;
     transform: rotate(35deg);
     /*box-sizing: border-box;*/
 }

@@ -1,0 +1,31 @@
+@font-face {
+    font-family: 'outfit-semibold';
+    src: url('../assets/fonts/Outfit-SemiBold.ttf');
+}
+
+:root {
+    --heading: #000000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-width: 100%;
+    background-color: var(--background);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.LoadingDiv {
+    margin-top: 5vw;
+}
+
+.LoadingDiv h1 {
+    font-family: 'outfit-semibold';
+    font-size: 7vw;
+    color: var(--heading);
+}

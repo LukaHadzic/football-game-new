@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { login as loginRequest } from '../api/authApi.js'
 import { useAuth } from '../auth/AuthContext.jsx'
-import { useNavigate } from "react-router-dom";
-import "./LoginPage.css"
+import { useNavigate, Link } from "react-router-dom";
+import styles from "./LoginPage.module.css"
 import centerPitchImage from "../assets/images/CenterPitchLines.png";
 
 
@@ -28,7 +28,6 @@ function LoginPage() {
             login(
                 response.data.userDto,
                 response.data.accessToken
-
             )
 
             console.log("Login success")
@@ -40,17 +39,34 @@ function LoginPage() {
         }
     }
 
+    const handleRegisterClick = async (event) => {
+
+        event.preventDefault()
+        setError('')
+
+        try {
+
+            navigate('/register')
+
+        } catch (err) {
+
+            console.error(err)
+            setError(err.message)
+
+        }
+    }
+
     return (
-        <div className="PageMainPart">
+        <div className={styles.PageMainPart}>
 
-            <div className="FormDiv">
+            <div className={styles.FormDiv}>
 
-                <div className="HeadingDiv">
+                <div className={styles.HeadingDiv}>
                     <h1>Login</h1>
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="InputDiv">
+                    <div className={styles.InputDiv}>
                         <input
                             type="text"
                             value={nickOrEmail}
@@ -58,7 +74,7 @@ function LoginPage() {
                             placeholder="Nickname or email"
                         />
                     </div>
-                    <div className="InputDiv">
+                    <div className={styles.InputDiv}>
                         <input
                             type="password"
                             value={password}
@@ -67,16 +83,19 @@ function LoginPage() {
                         />
                     </div>
 
-                    <button type="submit">Login</button>
+                    <button className={styles.LoginButton} type="submit">Login</button>
+                    <div className={styles.RegisterOptionDiv}>
+                        <p>Don't have account? <Link to="/register">Register now.</Link></p>
+                    </div>
+                    <div className={styles.ErrorDiv}>
+                        {error && (
+                            <p>{error}</p>
+                        )}
+                    </div>
                 </form>
-                <div className="ErrorDiv">
-                    {error && (
-                        <p>{error}</p>
-                    )}
-                </div>
             </div>
 
-            <div className="ImageDiv">
+            <div className={styles.ImageDiv}>
                 <img src={centerPitchImage}/>
             </div>
 

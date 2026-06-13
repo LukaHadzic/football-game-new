@@ -23,7 +23,7 @@
     --lightGrey: #5C5656FF;
     --background: #ed582b;
     --white: #ffffff;
-    --error: #000000;
+    --error: #ffffff;
 }
 
 * {
@@ -59,7 +59,7 @@ body {
 .PageMainPart .FormDiv {
     width: 20vw;
     margin-left: 60vw;
-    height: 24.7vw;
+    height: 12vw;
     text-align: left;
 }
 
@@ -70,8 +70,8 @@ body {
 
 .PageMainPart .FormDiv .InputDiv{
     width: 100%;
-    height: 14%;
-    margin-bottom: 3%;
+    height: 27%;
+    margin-bottom: 6%;
 }
 
 .PageMainPart .FormDiv input{
@@ -97,19 +97,19 @@ body {
     border: 1px solid var(--form-color);
 }
 
-.PageMainPart .FormDiv button{
+.PageMainPart .FormDiv .LoginButton{
     width: 100%;
-    height: 14%;
+    height: 27%;
     font-family: 'outfit-light';
     font-size: 1.5vw;
     color: var(--form-color);
     box-sizing: border-box;
     border: 1px solid var(--form-color);
     background-color: unset;
-    margin-bottom: 3%;
+    margin-bottom: 6%;
 }
 
-.PageMainPart .FormDiv button:hover{
+.PageMainPart .FormDiv .LoginButton:hover{
     cursor: pointer;
     /*background-color: var(--white);*/
     transition: 0.3s ease;
@@ -117,9 +117,25 @@ body {
     border: 1px solid var(--white);
 }
 
+.PageMainPart .FormDiv .RegisterOptionDiv {
+    width: 100%;
+    font-family: 'outfit-light';
+    font-size: 1vw;
+    margin-bottom: 3%;
+}
+
+.PageMainPart .FormDiv .RegisterOptionDiv p, a{
+    text-decoration: none;
+    color: var(--form-color);
+}
+
+.PageMainPart .FormDiv .RegisterOptionDiv a:hover {
+    color: var(--white);
+}
+
 .PageMainPart .FormDiv .ErrorDiv {
     width: 140%;
-    margin-top: 0;
+    margin-top: 6%;
     font-family: 'outfit-light';
     color: var(--error);
     font-size: 1vw;
@@ -131,7 +147,6 @@ body {
     /*background-color: #aa3bff;*/
     position: absolute;
     left: -2.5vw;
-    bottom: -13vw;
     transform: rotate(35deg);
     /*box-sizing: border-box;*/
 }
