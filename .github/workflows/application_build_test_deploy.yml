@@ -83,7 +83,9 @@ jobs:
           publish_dir: ./${{ matrix.service }}/target/site/jacoco
           destination_dir: ${{ matrix.service }}
           publish_branch: gh-pages
-          force_orphan: 'true'
+#          force_orphan: 'true'
+          force_orphan: 'false'
+          keep_files: true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -141,6 +143,7 @@ jobs:
           publish_dir: ./frontend/dist
           publish_branch: gh-pages
           destination_dir: .
+          keep_files: true
 
 
   deploy:
