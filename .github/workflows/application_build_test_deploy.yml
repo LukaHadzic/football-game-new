@@ -129,6 +129,10 @@ jobs:
           cd frontend
           npm run build
 
+      - name: Force index.html over 404.html
+        run: |
+          cp ./frontend/dist/index.html ./frontend/dist/404.html
+
       - name: Deploy frontend to GitHub pages
         if: github.ref == 'refs/heads/main' && github.event.name == 'push'
         uses: peaceiris/actions-gh-pages@v4
