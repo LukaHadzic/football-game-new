@@ -1,0 +1,79 @@
+@font-face {
+    font-family: 'outfit-light';
+    src: url('../assets/fonts/Outfit-Light.ttf');
+}
+
+@font-face {
+    font-family: 'outfit-medium';
+    src: url('../assets/fonts/Outfit-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'outfit-regular';
+    src: url('../assets/fonts/Outfit-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'outfit-semibold';
+    src: url('../assets/fonts/Outfit-SemiBold.ttf');
+}
+
+:root {
+    --form-color: #000000;
+    --lightGrey: #5C5656FF;
+    --background: #ed582b;
+    --white: #ffffff;
+    --error: #ffffff;
+    --button-background: #ed582b;
+    --button-border: #000000;
+    --button-text: #000000;
+    --button-hover: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-width: 100%;
+    background-color: var(--background);
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+}
+
+.DataDiv {
+    text-align: left;
+    margin-left: 3vw;
+}
+
+.DataDiv h1 {
+    font-family: 'outfit-semibold';
+    font-size: 3vw;
+    margin-bottom: 1vw;
+}
+
+.DataDiv p {
+    font-family: 'outfit-regular';
+    font-size: 1.5vw;
+    margin-bottom: 0.5vw;
+}
+
+.HomePageButton {
+    font-family: 'outfit-light';
+    width: 20vw;
+    height: 4vw;
+    font-size: 1.5vw;
+    color: var(--button-text);
+    background-color: var(--button-background);
+    border: 2px solid var(--button-border);
+    margin-left: 3vw;
+}
+
+.HomePageButton:hover {
+    color: var(--button-hover);
+    border-color: var(--button-hover);
+    transition: ease 0.3s;
+    cursor: pointer;
+}

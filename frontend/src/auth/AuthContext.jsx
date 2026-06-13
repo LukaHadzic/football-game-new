@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import {refresh} from "../api/authApi.js";
+import LoadingPage from "../pages/LoadingPage.jsx"
 
 const AuthContext = createContext()
 
@@ -42,7 +43,7 @@ export function AuthProvider({ children }){
     }, []);
 
     if (loading) {
-        return <div>Loading...</div>
+        return <LoadingPage />
     }
     return(
         <AuthContext.Provider

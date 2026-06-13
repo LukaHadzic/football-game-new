@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {register} from "../api/authApi.js"
 import {useNavigate} from "react-router-dom";
-import "./RegisterPage.css"
+import styles from "./RegisterPage.module.css"
 import centerPitchImage from "../assets/images/CenterPitchLines.png";
 
 function RegisterPage() {
@@ -56,16 +56,16 @@ function RegisterPage() {
 
     return(
 
-        <div className="PageMainPart">
+        <div className={styles.PageMainPart}>
 
-            <div className="FormDiv">
+            <div className={styles.FormDiv}>
 
-                <div className="HeadingDiv">
+                <div className={styles.HeadingDiv}>
                     <h1>Register</h1>
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <div className="InputDiv">
+                    <div className={styles.InputDiv}>
                         <input
                             type="text"
                             value={name}
@@ -73,7 +73,7 @@ function RegisterPage() {
                             placeholder="Name"
                         />
                     </div>
-                    <div className="InputDiv">
+                    <div className={styles.InputDiv}>
                         <input
                             type="text"
                             value={surname}
@@ -81,7 +81,7 @@ function RegisterPage() {
                             placeholder="Surname"
                         />
                     </div>
-                    <div className="InputDiv">
+                    <div className={styles.InputDiv}>
                         <input
                             type="text"
                             value={nick}
@@ -89,7 +89,7 @@ function RegisterPage() {
                             placeholder="Nickname"
                         />
                     </div>
-                    <div className="InputDiv">
+                    <div className={styles.InputDiv}>
                         <input
                             type="email"
                             value={email}
@@ -97,7 +97,7 @@ function RegisterPage() {
                             placeholder="Email"
                         />
                     </div>
-                    <div className="InputDiv">
+                    <div className={styles.InputDiv}>
                         <input
                             type="password"
                             value={password}
@@ -106,16 +106,16 @@ function RegisterPage() {
                         />
                     </div>
 
-                    <button type="submit">Register</button>
+                    <button className={styles.RegisterButton} type="submit">Register</button>
                 </form>
-                <div className="ErrorDiv">
+                <div className={styles.ErrorDiv}>
                     {error && (
                         <p>{error}</p>
                     )}
                 </div>
             </div>
 
-            <div className="ImageDiv">
+            <div className={styles.ImageDiv}>
                 <img src={centerPitchImage}/>
             </div>
 
@@ -186,7 +186,7 @@ function RegisterPage() {
 
         {/*        <br />*/}
 
-        {/*        <button type="submit">*/}
+        {/*        <button type="submit"*/}
         {/*            Register*/}
         {/*        </button>*/}
 

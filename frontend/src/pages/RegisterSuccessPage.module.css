@@ -1,0 +1,79 @@
+@font-face {
+    font-family: 'outfit-light';
+    src: url('../assets/fonts/Outfit-Light.ttf');
+}
+
+@font-face {
+    font-family: 'outfit-medium';
+    src: url('../assets/fonts/Outfit-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'outfit-regular';
+    src: url('../assets/fonts/Outfit-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'outfit-semibold';
+    src: url('../assets/fonts/Outfit-SemiBold.ttf');
+}
+
+:root {
+    --heading: #000000;
+    --message: #000000;
+    --background: #ed582b;
+    --button-background: #ed582b;
+    --button-border: #000000;
+    --button-text: #000000;
+    --button-hover: #ffffff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-width: 100%;
+    background-color: var(--background);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.HeadingDiv {
+    font-family: 'outfit-semibold';
+    font-size: 2vw;
+    margin-top: 2vw;
+    margin-bottom: 2vw;
+    color: var(--heading);
+    /*margin-left: 29vw;*/
+    /*width: 70vw;*/
+}
+
+.MessageDiv {
+    font-family: 'outfit-regular';
+    font-size: 1.5vw;
+    text-align: left;
+    margin-left: 29vw;
+    color: var(--message);
+    margin-bottom: 2vw;
+}
+
+.RegisterSuccessButton {
+    font-family: 'outfit-light';
+    width: 20vw;
+    height: 4vw;
+    font-size: 1.5vw;
+    color: var(--button-text);
+    background-color: var(--button-background);
+    border: 2px solid var(--button-border);
+    /*margin-left: 29vw;*/
+}
+
+.RegisterSuccessButton:hover {
+    color: var(--button-hover);
+    border-color: var(--button-hover);
+    transition: ease 0.3s;
+    cursor: pointer;
+}

@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const authApi = axios.create({
-    baseURL: 'http://localhost:8080/auth',
+    // baseURL: 'http://localhost:8080/auth',
+    baseURL: import.meta.env.VITE_AUTH_API_URL,
     headers: {
         'Content-Type': 'application/json'
     },
@@ -20,4 +21,8 @@ export const register = (data) => {
 
 export const refresh = () => {
     return authApi.post('/refresh')
+}
+
+export const logout = () => {
+    return authApi.post('/logout')
 }
