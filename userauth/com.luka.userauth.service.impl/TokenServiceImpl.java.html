@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TokenServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.luka.userauth.service.impl</a> &gt; <span class="el_source">TokenServiceImpl.java</span></div><h1>TokenServiceImpl.java</h1><pre class="source lang-java linenums">package com.luka.userauth.service.impl;
+
+import com.luka.userauth.entity.EmailVerificationToken;
+import com.luka.userauth.entity.User;
+import com.luka.userauth.exception.exceptionclasses.TokenNotValidException;
+import com.luka.userauth.exception.exceptionclasses.UserNotFoundException;
+import com.luka.userauth.repository.EmailVerificationTokenRepository;
+import com.luka.userauth.service.TokenService;
+import org.springframework.stereotype.Service;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+public class TokenServiceImpl implements TokenService {
+
+    private final EmailVerificationTokenRepository emailVerifTokenRepository;
+<span class="fc" id="L20">    private final long VERIF_TOKEN_VALID_FOR_HOURS = 24;</span>
+    private final Clock clock;
+    //private final long REFRESH_TOKEN_VALID_FOR_DAYS = 7;
+
+<span class="fc" id="L24">    public TokenServiceImpl(EmailVerificationTokenRepository emailVerifTokenRepository, Clock clock) {</span>
+<span class="fc" id="L25">        this.emailVerifTokenRepository = emailVerifTokenRepository;</span>
+<span class="fc" id="L26">        this.clock = clock;</span>
+<span class="fc" id="L27">    }</span>
+
+    @Override
+    public EmailVerificationToken generateToken(User user) {
+
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (user == null) throw new UserNotFoundException(&quot;User not found.&quot;);</span>
+
+        //Generate empty token object
+<span class="fc" id="L35">        EmailVerificationToken tokenObj = new EmailVerificationToken();</span>
+        //Fill data into token object
+<span class="fc" id="L37">        tokenObj.setToken(UUID.randomUUID().toString());</span>
+<span class="fc" id="L38">        tokenObj.setUser(user);</span>
+<span class="fc" id="L39">        tokenObj.setCreatedAt(LocalDateTime.now(clock));</span>
+<span class="fc" id="L40">        tokenObj.setExpiresAt(LocalDateTime.now(clock).plusHours(VERIF_TOKEN_VALID_FOR_HOURS));</span>
+<span class="fc" id="L41">        tokenObj.setUsed(false);</span>
+
+        //Return token
+<span class="fc" id="L44">        return tokenObj;</span>
+    }
+
+    @Override
+    public void saveToken(EmailVerificationToken token) {
+        //Save token object into db
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (token == null){</span>
+<span class="fc" id="L51">            throw new TokenNotValidException(&quot;Token is not valid.&quot;);</span>
+        }
+<span class="fc" id="L53">        emailVerifTokenRepository.save(token);</span>
+<span class="fc" id="L54">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

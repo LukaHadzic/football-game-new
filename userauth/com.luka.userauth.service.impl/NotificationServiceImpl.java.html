@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NotificationServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.luka.userauth.service.impl</a> &gt; <span class="el_source">NotificationServiceImpl.java</span></div><h1>NotificationServiceImpl.java</h1><pre class="source lang-java linenums">package com.luka.userauth.service.impl;
+
+import com.luka.userauth.service.NotificationService;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.stereotype.Service;
+
+/***
+ *  Creates and sends simple mail message with verification link to provided email.
+ *
+ * @author Luka
+ * @version 1.0
+ * @since 17. May 2026.
+ */
+@Service
+public class NotificationServiceImpl implements NotificationService {
+
+<span class="fc" id="L18">    private final String FRONTEND_URL = &quot;http://localhost:8080/auth&quot;;</span>
+<span class="fc" id="L19">    private final String PLATFORM_EMAIL = &quot;football.simulation@ggmail.com&quot;;</span>
+    private final JavaMailSender mailSender;
+
+<span class="fc" id="L22">    public NotificationServiceImpl(JavaMailSender mailSender) {</span>
+<span class="fc" id="L23">        this.mailSender = mailSender;</span>
+<span class="fc" id="L24">    }</span>
+
+    /***
+     * Only method in class. This method creates and sends simple mail message with verification link to provided
+     * email.
+     *
+     * @param email
+     * @param token
+     */
+    @Override
+    public void sendVerificationEmail(String email, String token){
+<span class="fc" id="L35">        String link = FRONTEND_URL + &quot;/validate-email?token=&quot; + token;</span>
+
+<span class="fc" id="L37">        SimpleMailMessage message = new SimpleMailMessage();</span>
+<span class="fc" id="L38">        message.setTo(email);</span>
+<span class="fc" id="L39">        message.setFrom(PLATFORM_EMAIL);</span>
+<span class="fc" id="L40">        message.setSubject(&quot;Please confirm Your e-mail address&quot;);</span>
+<span class="fc" id="L41">        message.setText(&quot;Use link provided below to confirm Your e-mail address.\n\n&quot;</span>
+                + link + &quot;\n\nThank You for playing with us!\n\nSincerely,\nFootball simulation game team&quot;);
+
+<span class="fc" id="L44">        mailSender.send(message);</span>
+<span class="fc" id="L45">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

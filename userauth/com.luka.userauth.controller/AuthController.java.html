@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.luka.userauth.controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package com.luka.userauth.controller;
+
+import com.luka.userauth.dto.*;
+import com.luka.userauth.entity.RefreshToken;
+import com.luka.userauth.entity.User;
+import com.luka.userauth.security.util.JWTUtil;
+import com.luka.userauth.security.util.RefreshTokenUtil;
+import com.luka.userauth.service.AuthService;
+import com.luka.userauth.service.RefreshTokenService;
+import com.luka.userauth.service.VerificationService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/auth&quot;)
+public class AuthController {
+
+    private final AuthService authService;
+    private final VerificationService verificationService;
+    private final RefreshTokenService refreshTokenService;
+    private final RefreshTokenUtil refreshTokenUtil;
+    private final JWTUtil jwtUtil;
+
+<span class="fc" id="L28">    public AuthController(AuthService authService, VerificationService verificationService, RefreshTokenService refreshTokenService, RefreshTokenUtil refreshTokenUtil, JWTUtil jwtUtil) {</span>
+<span class="fc" id="L29">        this.authService = authService;</span>
+<span class="fc" id="L30">        this.verificationService = verificationService;</span>
+<span class="fc" id="L31">        this.refreshTokenService = refreshTokenService;</span>
+<span class="fc" id="L32">        this.refreshTokenUtil = refreshTokenUtil;</span>
+<span class="fc" id="L33">        this.jwtUtil = jwtUtil;</span>
+<span class="fc" id="L34">    }</span>
+
+    @PostMapping(&quot;/register&quot;)
+    public ResponseEntity&lt;String&gt; register(@Valid @RequestBody RegisterDto request){
+<span class="fc" id="L38">        return new ResponseEntity&lt;&gt;(authService.register(request), HttpStatus.OK);</span>
+    }
+
+    @GetMapping(&quot;/validate-email&quot;)
+    public ResponseEntity&lt;String&gt; verifyEMail(@RequestParam String token){
+
+<span class="fc" id="L44">        User user = verificationService.verifyUser(token);</span>
+
+<span class="fc" id="L46">        RefreshToken refreshToken = refreshTokenService.create(user);</span>
+
+<span class="fc" id="L48">        return new ResponseEntity&lt;&gt;(&quot;Email successfully verified.&quot;, HttpStatus.OK);</span>
+    }
+
+    @PostMapping(&quot;/login&quot;)
+    public ResponseEntity&lt;LoginResponseDtoController&gt; login(@Valid @RequestBody LoginDto request, HttpServletResponse resp) {
+
+<span class="fc" id="L54">        LoginResponseDtoService serviceResp = authService.login(request);</span>
+
+<span class="fc" id="L56">        refreshTokenUtil.addRefreshToken(resp, serviceResp.getRefreshToken());</span>
+
+<span class="fc" id="L58">        return new ResponseEntity&lt;&gt;(new LoginResponseDtoController(serviceResp.getAccessToken(), serviceResp.getUserDto()), HttpStatus.OK);</span>
+    }
+
+    @PostMapping(&quot;/refresh&quot;)
+    public ResponseEntity&lt;RefreshDto&gt; refresh(HttpServletRequest req, HttpServletResponse resp){
+
+<span class="nc" id="L64">        RefreshToken newToken = refreshTokenService.rotate(refreshTokenUtil.extractFromCookie(req));</span>
+<span class="nc" id="L65">        refreshTokenUtil.addRefreshToken(resp, newToken.getToken());</span>
+
+<span class="nc" id="L67">        return new ResponseEntity&lt;&gt;(new RefreshDto(jwtUtil.generateToken(newToken.getUser())), HttpStatus.OK);</span>
+    }
+
+    @PostMapping(&quot;/logout&quot;)
+    public ResponseEntity&lt;String&gt; logout(HttpServletRequest req, HttpServletResponse resp){
+        try{
+<span class="fc" id="L73">            authService.logout(refreshTokenUtil.extractFromCookie(req));</span>
+<span class="fc" id="L74">        } catch (Exception e){</span>
+
+        } finally {
+            try {
+<span class="fc" id="L78">                refreshTokenUtil.deleteRefreshToken(resp);</span>
+<span class="fc" id="L79">            } catch (Exception e){}</span>
+        }
+<span class="fc" id="L81">        return new ResponseEntity&lt;&gt;(&quot;Logout successful.&quot;, HttpStatus.OK);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

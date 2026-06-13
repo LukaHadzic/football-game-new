@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VerificationServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.luka.userauth.service.impl</a> &gt; <span class="el_source">VerificationServiceImpl.java</span></div><h1>VerificationServiceImpl.java</h1><pre class="source lang-java linenums">package com.luka.userauth.service.impl;
+
+import com.luka.userauth.entity.EmailVerificationToken;
+import com.luka.userauth.entity.User;
+import com.luka.userauth.exception.exceptionclasses.TokenNotValidException;
+import com.luka.userauth.exception.exceptionclasses.VerificationFailedException;
+import com.luka.userauth.repository.EmailVerificationTokenRepository;
+import com.luka.userauth.repository.UserRepository;
+import com.luka.userauth.service.TokenService;
+import com.luka.userauth.service.VerificationService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
+
+@Service
+public class VerificationServiceImpl implements VerificationService {
+
+    private final EmailVerificationTokenRepository emailVerifTokenRepository;
+    private final UserRepository userRepository;
+    private final TransactionTemplate tsTemplate;
+    private final Clock clock;
+<span class="fc" id="L24">    private final int TOKEN_VALID_LENGTH = 36;</span>
+
+<span class="fc" id="L26">    public VerificationServiceImpl(TokenService tokenService, EmailVerificationTokenRepository emailVerifTokenRepository, UserRepository userRepository, TransactionTemplate tsTemplate, Clock clock) {</span>
+<span class="fc" id="L27">        this.emailVerifTokenRepository = emailVerifTokenRepository;</span>
+<span class="fc" id="L28">        this.userRepository = userRepository;</span>
+<span class="fc" id="L29">        this.tsTemplate = tsTemplate;</span>
+<span class="fc" id="L30">        this.clock = clock;</span>
+<span class="fc" id="L31">    }</span>
+
+    @Override
+    public User verifyUser(String token) {
+<span class="fc bfc" id="L35" title="All 4 branches covered.">        if (token == null || token.length() != TOKEN_VALID_LENGTH) throw new TokenNotValidException(&quot;Token is not valid&quot;);</span>
+        //Gather token from db and check if it is valid
+<span class="fc" id="L37">        EmailVerificationToken tokenObj = emailVerifTokenRepository.findByToken(token)</span>
+<span class="fc" id="L38">                .orElseThrow(() -&gt; new TokenNotValidException(&quot;Cannot finish registration, token is not valid.&quot;));</span>
+
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if(tokenObj.isUsed()) {</span>
+<span class="fc" id="L41">            throw new TokenNotValidException(&quot;Token already used.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if(tokenObj.getExpiresAt().isBefore(LocalDateTime.now(clock))) {</span>
+<span class="fc" id="L45">            throw new TokenNotValidException(&quot;Token is expired.&quot;);</span>
+        }
+
+<span class="fc" id="L48">        User user = tokenObj.getUser();</span>
+
+
+
+        try {
+<span class="fc" id="L53">            tsTemplate.execute(status -&gt; {</span>
+<span class="fc" id="L54">                tokenObj.setUsed(true);</span>
+<span class="fc" id="L55">                user.setVerified(true);</span>
+<span class="fc" id="L56">                userRepository.save(user);</span>
+<span class="fc" id="L57">                emailVerifTokenRepository.save(tokenObj);</span>
+<span class="fc" id="L58">                return null;</span>
+            });
+<span class="fc" id="L60">        }catch(Exception e) {</span>
+<span class="fc" id="L61">            throw new VerificationFailedException(&quot;Email verification failed.&quot;);</span>
+<span class="fc" id="L62">        }</span>
+
+<span class="fc" id="L64">        return user;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

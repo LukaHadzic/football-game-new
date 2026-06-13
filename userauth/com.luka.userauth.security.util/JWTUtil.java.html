@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JWTUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.luka.userauth.security.util</a> &gt; <span class="el_source">JWTUtil.java</span></div><h1>JWTUtil.java</h1><pre class="source lang-java linenums">package com.luka.userauth.security.util;
+
+import com.luka.userauth.entity.Role;
+import com.luka.userauth.entity.User;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
+import java.time.Clock;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Class responsible for JWT token. It is utility class that can generate, validate or extract data from
+ * JWT token.
+ *
+ * @author Luka
+ * @version 1.0
+ * @since 17. May 2026.
+ */
+@Component
+<span class="fc" id="L26">public class JWTUtil {</span>
+
+<span class="fc" id="L28">    private final String JWT_SECRET = &quot;mySecretJwT12987rw890atb456ksk01&quot;;</span>
+<span class="fc" id="L29">    private final long VALID_FOR_MILISECONDS = 1000*60*60;</span>
+<span class="fc" id="L30">    private final String ISSUER_NAME = &quot;user-auth-service&quot;;</span>
+    private SecretKey key;
+
+//    private final Clock clock;
+//
+//    public JWTUtil(Clock clock) {
+//        this.clock = clock;
+//    }
+
+    /**
+     * When instance of JWTUtil class is created, this method sets proper secret key necessary for cyphering.
+     */
+    @PostConstruct
+    public void onInit() {
+<span class="fc" id="L44">        this.key = Keys.hmacShaKeyFor(JWT_SECRET.getBytes());</span>
+<span class="fc" id="L45">    }</span>
+    //Generate and return JWT token
+
+    /**
+     * Generates JWT token with following attributes: user's id, issuer's name, user's roles, date of creation and
+     * date of expiration.
+     * Generated token is valid for one hour.
+     *
+     * @param user
+     * @return String that represents generated JWT token.
+     */
+    public String generateToken(User user){
+        //Extract role names from user
+<span class="nc" id="L58">        Set&lt;String&gt; userRolesSet = user.getRoles().stream().map(Role::getName).collect(Collectors.toSet());</span>
+
+<span class="nc" id="L60">        System.out.println(&quot;Veličina seta: &quot; + userRolesSet.size());</span>
+<span class="nc" id="L61">        userRolesSet.stream().forEach(System.out::println);</span>
+
+<span class="nc" id="L63">        return Jwts.builder()</span>
+<span class="nc" id="L64">                .claim(&quot;roles&quot;, userRolesSet)</span>
+<span class="nc" id="L65">                .subject(String.valueOf(user.getId()))</span>
+<span class="nc" id="L66">                .issuer(ISSUER_NAME)</span>
+<span class="nc" id="L67">                .issuedAt(new Date())</span>
+<span class="nc" id="L68">                .expiration(new Date(System.currentTimeMillis() + VALID_FOR_MILISECONDS))</span>
+<span class="nc" id="L69">                .signWith(key)</span>
+<span class="nc" id="L70">                .compact();</span>
+    }
+
+    /**
+     * Extracts user's id from provided JWT token.
+     *
+     * @param token
+     * @return Long that represents user's id contained in JWT token.
+     */
+    public Long extractUserId(String token){
+<span class="nc" id="L80">        String userId = Jwts.parser()</span>
+<span class="nc" id="L81">                .verifyWith(key)</span>
+<span class="nc" id="L82">                .build()</span>
+<span class="nc" id="L83">                .parseSignedClaims(token)</span>
+<span class="nc" id="L84">                .getPayload()</span>
+<span class="nc" id="L85">                .getSubject();</span>
+<span class="nc" id="L86">        return Long.parseLong(userId);</span>
+    }
+
+    /**
+     * Extracts expiration date from provided JWT token.
+     *
+     * @param token
+     * @return Date that represents expiration date of contained in JWT token.
+     */
+    public Date extractExpirationDate(String token){
+<span class="nc" id="L96">        return Jwts.parser()</span>
+<span class="nc" id="L97">                .verifyWith(key)</span>
+<span class="nc" id="L98">                .build()</span>
+<span class="nc" id="L99">                .parseSignedClaims(token)</span>
+<span class="nc" id="L100">                .getPayload()</span>
+<span class="nc" id="L101">                .getExpiration();</span>
+    }
+
+    /**
+     * Validates provided JWT token if it's signed with correct key and also if it's not expired.
+     *
+     * @param token
+     * @return Boolean that represents if provided JWT token is valid or not.
+     */
+    public boolean isTokenValid(String token){
+        try {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (extractExpirationDate(token).before(new Date())) throw new JwtException(&quot;Token expired.&quot;);</span>
+<span class="nc" id="L113">            return true;</span>
+<span class="nc" id="L114">        }catch (JwtException | IllegalArgumentException e){</span>
+<span class="nc" id="L115">            return false;</span>
+        }
+    }
+
+    /**
+     * Extracts user's roles from provided JWT token.
+     *
+     * @param token
+     * @return Set that contains user's roles contained in JWT token.
+     */
+    public Set&lt;String&gt; extractRoles(String token){
+<span class="nc" id="L126">        Claims claims = Jwts.parser()</span>
+<span class="nc" id="L127">                .verifyWith(key)</span>
+<span class="nc" id="L128">                .build()</span>
+<span class="nc" id="L129">                .parseSignedClaims(token)</span>
+<span class="nc" id="L130">                .getPayload();</span>
+<span class="nc" id="L131">        List&lt;String&gt; roles = claims.get(&quot;roles&quot;, List.class);</span>
+<span class="nc" id="L132">        return new HashSet&lt;&gt;(roles);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

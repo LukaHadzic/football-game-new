@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RefreshTokenUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.luka.userauth.security.util</a> &gt; <span class="el_source">RefreshTokenUtil.java</span></div><h1>RefreshTokenUtil.java</h1><pre class="source lang-java linenums">package com.luka.userauth.security.util;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
+
+@Component
+<span class="fc" id="L9">public class RefreshTokenUtil {</span>
+
+<span class="fc" id="L11">    private final boolean IS_PRODUCTION = false;</span>
+
+<span class="fc" id="L13">    private final int COOKIE_MAX_AGE_DAYS = 7 ;</span>
+
+    public void addRefreshToken(HttpServletResponse resp, String token){
+<span class="nc" id="L16">        Cookie cookie = new Cookie(&quot;refreshToken&quot;, token);</span>
+<span class="nc" id="L17">        cookie.setHttpOnly(true);</span>
+<span class="nc" id="L18">        cookie.setSecure(IS_PRODUCTION);</span>
+<span class="nc" id="L19">        cookie.setPath(&quot;/auth&quot;);</span>
+<span class="nc" id="L20">        cookie.setMaxAge(COOKIE_MAX_AGE_DAYS * 24 * 60 * 60);</span>
+
+<span class="nc" id="L22">        resp.addCookie(cookie);</span>
+<span class="nc" id="L23">    }</span>
+
+    public String extractFromCookie(HttpServletRequest req){
+<span class="nc bnc" id="L26" title="All 2 branches missed.">        if(req.getCookies() == null) return null;</span>
+
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        for(Cookie cookie : req.getCookies()) {</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">            if(&quot;refreshToken&quot;.equals(cookie.getName())){</span>
+<span class="nc" id="L30">                return cookie.getValue();</span>
+            }
+        }
+<span class="nc" id="L33">        return null;</span>
+    }
+
+    public void deleteRefreshToken(HttpServletResponse resp){
+<span class="nc" id="L37">        Cookie cookie = new Cookie(&quot;refreshToken&quot;, &quot;&quot;);</span>
+<span class="nc" id="L38">        cookie.setHttpOnly(true);</span>
+<span class="nc" id="L39">        cookie.setSecure(IS_PRODUCTION);</span>
+<span class="nc" id="L40">        cookie.setPath(&quot;/auth&quot;); //Potencijalni bug</span>
+<span class="nc" id="L41">        cookie.setMaxAge(0);</span>
+
+<span class="nc" id="L43">        resp.addCookie(cookie);</span>
+<span class="nc" id="L44">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

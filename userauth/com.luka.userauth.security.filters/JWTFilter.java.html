@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JWTFilter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report"></a> &gt; <a href="index.source.html" class="el_package">com.luka.userauth.security.filters</a> &gt; <span class="el_source">JWTFilter.java</span></div><h1>JWTFilter.java</h1><pre class="source lang-java linenums">package com.luka.userauth.security.filters;
+
+import com.luka.userauth.exception.exceptionclasses.JWTInvalidException;
+import com.luka.userauth.security.util.JWTUtil;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Component
+public class JWTFilter extends OncePerRequestFilter {
+
+    private final JWTUtil jwtUtil;
+
+<span class="fc" id="L26">    public JWTFilter(JWTUtil jwtUtil) {</span>
+<span class="fc" id="L27">        this.jwtUtil = jwtUtil;</span>
+<span class="fc" id="L28">    }</span>
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest req){
+<span class="nc" id="L32">        String path = req.getServletPath();</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        return path.equals(&quot;/auth/register&quot;)</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">                || path.equals(&quot;/auth/login&quot;)</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">                || path.equals(&quot;/auth/validate-email&quot;)</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">                || path.equals(&quot;/auth/logout&quot;)</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">                || path.equals(&quot;/auth/refresh&quot;);</span>
+    }
+
+    private String getToken(String reqAuthHeader){
+<span class="nc bnc" id="L41" title="All 4 branches missed.">        if (reqAuthHeader != null &amp;&amp; reqAuthHeader.startsWith(&quot;Bearer &quot;)){</span>
+<span class="nc" id="L42">            return reqAuthHeader.substring(7);</span>
+        }else{
+<span class="nc" id="L44">            throw new JWTInvalidException(&quot;JWT token is not valid.&quot;);</span>
+        }
+    }
+
+    private List&lt;GrantedAuthority&gt; getAuthorities(String token){
+<span class="nc" id="L49">        Set&lt;String&gt; roles = jwtUtil.extractRoles(token);</span>
+
+<span class="nc" id="L51">        return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());</span>
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
+<span class="nc" id="L59">        String token = getToken(request.getHeader(&quot;Authorization&quot;));</span>
+
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        if (jwtUtil.isTokenValid(token)){</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (SecurityContextHolder.getContext().getAuthentication() == null){</span>
+<span class="nc" id="L63">                Long userId = jwtUtil.extractUserId(token);</span>
+<span class="nc" id="L64">                List&lt;GrantedAuthority&gt; authorities = getAuthorities(token);</span>
+<span class="nc" id="L65">                UsernamePasswordAuthenticationToken loggedUser =</span>
+                        new UsernamePasswordAuthenticationToken(userId, null, authorities);
+<span class="nc" id="L67">                SecurityContextHolder.getContext().setAuthentication(loggedUser);</span>
+<span class="nc" id="L68">            }</span>
+        }else{
+<span class="nc" id="L70">            throw new JWTInvalidException(&quot;JWT token is not valid.&quot;);</span>
+        }
+<span class="nc" id="L72">        filterChain.doFilter(request, response);</span>
+<span class="nc" id="L73">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
