@@ -1,0 +1,143 @@
+@font-face {
+    font-family: 'outfit-light';
+    src: url('../assets/fonts/Outfit-Light.ttf');
+}
+
+@font-face {
+    font-family: 'outfit-medium';
+    src: url('../assets/fonts/Outfit-Medium.ttf');
+}
+
+@font-face {
+    font-family: 'outfit-regular';
+    src: url('../assets/fonts/Outfit-Regular.ttf');
+}
+
+@font-face {
+    font-family: 'outfit-semibold';
+    src: url('../assets/fonts/Outfit-SemiBold.ttf');
+}
+
+:root {
+    --form-color: #000000;
+    --lightGrey: #5C5656FF;
+    --background: #ed582b;
+    --white: #ffffff;
+    --error: #000000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-width: 100%;
+    background-color: var(--background);
+    position: relative;
+    overflow: hidden;
+}
+
+.PageMainPart {
+    text-align: center;
+    background-color: var(--background);
+}
+
+.PageMainPart .FormDiv .HeadingDiv {
+    width: 100%;
+    margin-top: 24%;
+    margin-bottom: 6%;
+    text-align: center;
+}
+
+.PageMainPart .FormDiv .HeadingDiv h1{
+    color: var(--form-color);
+    font-family: 'outfit-semibold';
+    font-size: 3vw;
+}
+
+.PageMainPart .FormDiv {
+    width: 20vw;
+    margin-left: 60vw;
+    height: 24.7vw;
+    text-align: left;
+}
+
+.PageMainPart .FormDiv form{
+    width: 100%;
+    height: 100%;
+}
+
+.PageMainPart .FormDiv .InputDiv{
+    width: 100%;
+    height: 14%;
+    margin-bottom: 3%;
+}
+
+.PageMainPart .FormDiv input{
+    width: 100%;
+    height: 100%;
+    background-color: unset;
+}
+
+.PageMainPart .FormDiv input::placeholder{
+    /*color: var(--lightGrey);*/
+    color: var(--form-color);
+    font-family: 'outfit-light';
+    font-size: 1.5vw;
+    vertical-align: center;
+}
+
+.PageMainPart .FormDiv input{
+    font-family: outfit-medium;
+    font-size: 1.5vw;
+    color: var(--form-color);
+    padding-left: 2%;
+    box-sizing: border-box;
+    border: 1px solid var(--form-color);
+}
+
+.PageMainPart .FormDiv button{
+    width: 100%;
+    height: 14%;
+    font-family: 'outfit-light';
+    font-size: 1.5vw;
+    color: var(--form-color);
+    box-sizing: border-box;
+    border: 1px solid var(--form-color);
+    background-color: unset;
+    margin-bottom: 3%;
+}
+
+.PageMainPart .FormDiv button:hover{
+    cursor: pointer;
+    /*background-color: var(--white);*/
+    transition: 0.3s ease;
+    color: var(--white);
+    border: 1px solid var(--white);
+}
+
+.PageMainPart .FormDiv .ErrorDiv {
+    width: 140%;
+    margin-top: 0;
+    font-family: 'outfit-light';
+    color: var(--error);
+    font-size: 1vw;
+}
+
+.PageMainPart .ImageDiv {
+    width: 50vw;
+    height: 25vw;
+    /*background-color: #aa3bff;*/
+    position: absolute;
+    left: -2.5vw;
+    bottom: -13vw;
+    transform: rotate(35deg);
+    /*box-sizing: border-box;*/
+}
+
+.PageMainPart .ImageDiv img {
+    width: 100%;
+    height: 100%;
+}
+
