@@ -83,11 +83,11 @@ function LoginPage() {
                         />
                     </div>
 
-                    <button className={styles.LoginButton} type="submit">Login</button>
+                    <button className={styles.LoginButton} type="submit" data-testid={"login-button"}>Login</button>
                     <div className={styles.RegisterOptionDiv}>
                         <p>Don't have account? <Link to="/register">Register now.</Link></p>
                     </div>
-                    <div className={styles.ErrorDiv}>
+                    <div className={styles.ErrorDiv} data-testid="error-div">
                         {error && (
                             <p>{error}</p>
                         )}

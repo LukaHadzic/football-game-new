@@ -92,7 +92,11 @@ public class AuthServiceImpl implements AuthService {
         //Call NotificationService to send email to provided email address
         notificationService.sendVerificationEmail(user.getEmail(), generatedToken.getToken());
 
-        return "Check provided email's inbox in order to verify Your identity.";
+        return String.format(
+                "%s, please check provided email's inbox (%s) in order to verify Your identity.",
+                registerDto.getNick(),
+                registerDto.getEmail()
+        );//"Check provided email's inbox in order to verify Your identity.";
     }
 
     protected void saveTokenAndUser(User user, EmailVerificationToken emailVerificationToken, Role defaultRole) {
