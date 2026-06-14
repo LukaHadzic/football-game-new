@@ -2,7 +2,7 @@ GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_
 ,com.luka.userauth.security,SecurityConfig,0,120,0,0,0,22,0,6,0,6
 ,com.luka.userauth.service.impl,NotificationServiceImpl,0,37,0,0,0,13,0,2,0,2
 ,com.luka.userauth.service.impl,RefreshTokenServiceImpl,0,227,0,20,0,54,0,21,0,11
-,com.luka.userauth.service.impl,AuthServiceImpl,0,213,0,12,0,50,0,14,0,8
+,com.luka.userauth.service.impl,AuthServiceImpl,0,226,0,12,0,52,0,14,0,8
 ,com.luka.userauth.service.impl,TokenServiceImpl,0,60,0,4,0,17,0,5,0,3
 ,com.luka.userauth.service.impl,VerificationServiceImpl,0,100,0,8,0,25,0,8,0,4
 ,com.luka.userauth.exception,GlobalExceptionHandler,21,31,0,0,3,5,3,5,3,5

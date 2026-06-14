@@ -92,44 +92,48 @@ public class AuthServiceImpl implements AuthService {
         //Call NotificationService to send email to provided email address
 <span class="fc" id="L93">        notificationService.sendVerificationEmail(user.getEmail(), generatedToken.getToken());</span>
 
-<span class="fc" id="L95">        return &quot;Check provided email's inbox in order to verify Your identity.&quot;;</span>
+<span class="fc" id="L95">        return String.format(</span>
+                &quot;%s, please check provided email's inbox (%s) in order to verify Your identity.&quot;,
+<span class="fc" id="L97">                registerDto.getNick(),</span>
+<span class="fc" id="L98">                registerDto.getEmail()</span>
+        );//&quot;Check provided email's inbox in order to verify Your identity.&quot;;
     }
 
     protected void saveTokenAndUser(User user, EmailVerificationToken emailVerificationToken, Role defaultRole) {
-<span class="fc" id="L99">        userRepository.saveAndFlush(user);</span>
-<span class="fc" id="L100">        tokenService.saveToken(emailVerificationToken);</span>
-<span class="fc" id="L101">    }</span>
+<span class="fc" id="L103">        userRepository.saveAndFlush(user);</span>
+<span class="fc" id="L104">        tokenService.saveToken(emailVerificationToken);</span>
+<span class="fc" id="L105">    }</span>
 
     @Override
     public LoginResponseDtoService login(LoginDto loginDto) {
-<span class="fc" id="L105">        String nickOrEmail = loginDto.getNickOrEmail();</span>
+<span class="fc" id="L109">        String nickOrEmail = loginDto.getNickOrEmail();</span>
 
-<span class="fc" id="L107">        User user = userRepository.findByEmailOrNick(nickOrEmail)</span>
-<span class="fc" id="L108">                .orElseThrow(() -&gt; new UserNotFoundException(&quot;Wrong login credentials.&quot;));</span>
+<span class="fc" id="L111">        User user = userRepository.findByEmailOrNick(nickOrEmail)</span>
+<span class="fc" id="L112">                .orElseThrow(() -&gt; new UserNotFoundException(&quot;Wrong login credentials.&quot;));</span>
 
-<span class="fc bfc" id="L110" title="All 2 branches covered.">        if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {</span>
-<span class="fc" id="L111">            throw new UserNotFoundException(&quot;Wrong login credentials.&quot;);</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {</span>
+<span class="fc" id="L115">            throw new UserNotFoundException(&quot;Wrong login credentials.&quot;);</span>
         }
         
-<span class="fc" id="L114">        RefreshToken refreshToken = refreshTokenService.validateOnLogin(user);</span>
+<span class="fc" id="L118">        RefreshToken refreshToken = refreshTokenService.validateOnLogin(user);</span>
         //Nije doboro - sta ako je refresh istekao - proveriti
         //Vrv u validate(User) vratiti null ako je istekao pa ovde provera za create
 
-<span class="fc" id="L118">        RefreshToken newRefreshToken = refreshTokenService.rotate(refreshToken.getToken());</span>
-<span class="fc" id="L119">        String token = jwtUtil.generateToken(user);</span>
+<span class="fc" id="L122">        RefreshToken newRefreshToken = refreshTokenService.rotate(refreshToken.getToken());</span>
+<span class="fc" id="L123">        String token = jwtUtil.generateToken(user);</span>
 
-<span class="fc" id="L121">        return new LoginResponseDtoService(token, userMapper.toUserDto(user), newRefreshToken.getToken());</span>
+<span class="fc" id="L125">        return new LoginResponseDtoService(token, userMapper.toUserDto(user), newRefreshToken.getToken());</span>
     }
 
     @Override
     public void logout(String token) {
 
-<span class="fc bfc" id="L127" title="All 4 branches covered.">        if (token == null || token.isEmpty()) return;</span>
-<span class="fc" id="L128">        RefreshToken dbToken = refreshTokenService.validate(token);</span>
+<span class="fc bfc" id="L131" title="All 4 branches covered.">        if (token == null || token.isEmpty()) return;</span>
+<span class="fc" id="L132">        RefreshToken dbToken = refreshTokenService.validate(token);</span>
 
-<span class="fc bfc" id="L130" title="All 2 branches covered.">        if (dbToken != null) {</span>
-<span class="fc" id="L131">            refreshTokenService.revoke(token);</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (dbToken != null) {</span>
+<span class="fc" id="L135">            refreshTokenService.revoke(token);</span>
         }
-<span class="fc" id="L133">    }</span>
+<span class="fc" id="L137">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
