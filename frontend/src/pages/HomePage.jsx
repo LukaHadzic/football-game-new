@@ -35,7 +35,7 @@ function HomePage() {
                 <p>Email: {user?.email}</p>
                 <p>Role: {user?.roles?.join(', ')}</p>
             </div>
-            <button className={styles.HomePageButton} onClick={handleLogout}>Logout</button>
+            <button className={styles.HomePageButton} onClick={handleLogout} data-testid={"logout-button"}>Logout</button>
         </div>
     )
 }

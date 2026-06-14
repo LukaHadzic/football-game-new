@@ -67,6 +67,7 @@ function RegisterPage() {
                 <form onSubmit={handleSubmit}>
                     <div className={styles.InputDiv}>
                         <input
+                            data-testid="name-input"
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -75,6 +76,7 @@ function RegisterPage() {
                     </div>
                     <div className={styles.InputDiv}>
                         <input
+                            data-testid="surname-input"
                             type="text"
                             value={surname}
                             onChange={(e) => setSurname(e.target.value)}
@@ -83,6 +85,7 @@ function RegisterPage() {
                     </div>
                     <div className={styles.InputDiv}>
                         <input
+                            data-testid="nickname-input"
                             type="text"
                             value={nick}
                             onChange={(e) => setNick(e.target.value)}
@@ -91,6 +94,7 @@ function RegisterPage() {
                     </div>
                     <div className={styles.InputDiv}>
                         <input
+                            data-testid="email-input"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -99,6 +103,7 @@ function RegisterPage() {
                     </div>
                     <div className={styles.InputDiv}>
                         <input
+                            data-testid="password-input"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -108,7 +113,7 @@ function RegisterPage() {
 
                     <button className={styles.RegisterButton} type="submit">Register</button>
                 </form>
-                <div className={styles.ErrorDiv}>
+                <div className={styles.ErrorDiv} data-testid={"error-div"}>
                     {error && (
                         <p>{error}</p>
                     )}
