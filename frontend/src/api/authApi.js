@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const authApi = axios.create({
     baseURL: 'http://localhost:8080/auth',
+    // baseURL: 'https://userauthapp.azurewebsites.net/auth',
     // baseURL: import.meta.env.VITE_AUTH_API_URL,
     headers: {
         'Content-Type': 'application/json'
