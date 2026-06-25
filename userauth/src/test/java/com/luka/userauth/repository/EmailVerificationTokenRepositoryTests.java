@@ -164,7 +164,19 @@ public class EmailVerificationTokenRepositoryTests {
     }
 
     @Test
-    void shouldSetProperUserIdValueFor
+    void shouldSetProperUserIdValue() {
+
+        User savedUser = userRepository.saveAndFlush(user);
+
+        emailVerifTokenRepository.saveAndFlush(emailToken);
+
+        Optional<EmailVerificationToken> dbToken = emailVerifTokenRepository.findByToken(emailToken.getToken());
+
+        Assertions.assertTrue(dbToken.isPresent());
+        Assertions.assertNotNull(dbToken.get().getUser());
+        Assertions.assertEquals(savedUser.getId(), dbToken.get().getUser().getId());
+
+    }
 
     @Test
     void shouldNotSaveNullTokenString() {
@@ -175,6 +187,21 @@ public class EmailVerificationTokenRepositoryTests {
 
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
             emailVerifTokenRepository.saveAndFlush(emailToken);
+        });
+
+    }
+
+    @Test
+    void shouldNotSaveNullUser() {
+
+        userRepository.save(user);
+
+        emailToken.setUser(null);
+
+        Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
+
+            emailVerifTokenRepository.saveAndFlush(emailToken);
+
         });
 
     }
