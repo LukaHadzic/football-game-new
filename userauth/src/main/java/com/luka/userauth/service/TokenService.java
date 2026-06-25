@@ -9,5 +9,6 @@ public interface TokenService {
 
     public void saveToken(EmailVerificationToken token);
 
+    long getEMAIL_TOKEN_VALID_FOR_HOURS();
 
 }
