@@ -10,16 +10,20 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class TokenServiceImpl implements TokenService {
 
     private final EmailVerificationTokenRepository emailVerifTokenRepository;
-    private final long VERIF_TOKEN_VALID_FOR_HOURS = 24;
+    private final long EMAIL_TOKEN_VALID_FOR_HOURS = 24;
     private final Clock clock;
     //private final long REFRESH_TOKEN_VALID_FOR_DAYS = 7;
+
+    @Override
+    public long getEMAIL_TOKEN_VALID_FOR_HOURS() {
+        return this.EMAIL_TOKEN_VALID_FOR_HOURS;
+    }
 
     public TokenServiceImpl(EmailVerificationTokenRepository emailVerifTokenRepository, Clock clock) {
         this.emailVerifTokenRepository = emailVerifTokenRepository;
@@ -37,7 +41,7 @@ public class TokenServiceImpl implements TokenService {
         tokenObj.setToken(UUID.randomUUID().toString());
         tokenObj.setUser(user);
         tokenObj.setCreatedAt(LocalDateTime.now(clock));
-        tokenObj.setExpiresAt(LocalDateTime.now(clock).plusHours(VERIF_TOKEN_VALID_FOR_HOURS));
+        tokenObj.setExpiresAt(LocalDateTime.now(clock).plusHours(EMAIL_TOKEN_VALID_FOR_HOURS));
         tokenObj.setUsed(false);
 
         //Return token
@@ -52,5 +56,7 @@ public class TokenServiceImpl implements TokenService {
         }
         emailVerifTokenRepository.save(token);
     }
+
+
 
 }
