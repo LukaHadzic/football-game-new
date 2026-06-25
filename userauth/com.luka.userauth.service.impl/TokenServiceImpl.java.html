@@ -10,48 +10,54 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class TokenServiceImpl implements TokenService {
 
     private final EmailVerificationTokenRepository emailVerifTokenRepository;
-<span class="fc" id="L20">    private final long VERIF_TOKEN_VALID_FOR_HOURS = 24;</span>
+<span class="fc" id="L19">    private final long EMAIL_TOKEN_VALID_FOR_HOURS = 24;</span>
     private final Clock clock;
     //private final long REFRESH_TOKEN_VALID_FOR_DAYS = 7;
 
-<span class="fc" id="L24">    public TokenServiceImpl(EmailVerificationTokenRepository emailVerifTokenRepository, Clock clock) {</span>
-<span class="fc" id="L25">        this.emailVerifTokenRepository = emailVerifTokenRepository;</span>
-<span class="fc" id="L26">        this.clock = clock;</span>
-<span class="fc" id="L27">    }</span>
+    @Override
+    public long getEMAIL_TOKEN_VALID_FOR_HOURS() {
+<span class="nc" id="L25">        return this.EMAIL_TOKEN_VALID_FOR_HOURS;</span>
+    }
+
+<span class="fc" id="L28">    public TokenServiceImpl(EmailVerificationTokenRepository emailVerifTokenRepository, Clock clock) {</span>
+<span class="fc" id="L29">        this.emailVerifTokenRepository = emailVerifTokenRepository;</span>
+<span class="fc" id="L30">        this.clock = clock;</span>
+<span class="fc" id="L31">    }</span>
 
     @Override
     public EmailVerificationToken generateToken(User user) {
 
-<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (user == null) throw new UserNotFoundException(&quot;User not found.&quot;);</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (user == null) throw new UserNotFoundException(&quot;User not found.&quot;);</span>
 
         //Generate empty token object
-<span class="fc" id="L35">        EmailVerificationToken tokenObj = new EmailVerificationToken();</span>
+<span class="fc" id="L39">        EmailVerificationToken tokenObj = new EmailVerificationToken();</span>
         //Fill data into token object
-<span class="fc" id="L37">        tokenObj.setToken(UUID.randomUUID().toString());</span>
-<span class="fc" id="L38">        tokenObj.setUser(user);</span>
-<span class="fc" id="L39">        tokenObj.setCreatedAt(LocalDateTime.now(clock));</span>
-<span class="fc" id="L40">        tokenObj.setExpiresAt(LocalDateTime.now(clock).plusHours(VERIF_TOKEN_VALID_FOR_HOURS));</span>
-<span class="fc" id="L41">        tokenObj.setUsed(false);</span>
+<span class="fc" id="L41">        tokenObj.setToken(UUID.randomUUID().toString());</span>
+<span class="fc" id="L42">        tokenObj.setUser(user);</span>
+<span class="fc" id="L43">        tokenObj.setCreatedAt(LocalDateTime.now(clock));</span>
+<span class="fc" id="L44">        tokenObj.setExpiresAt(LocalDateTime.now(clock).plusHours(EMAIL_TOKEN_VALID_FOR_HOURS));</span>
+<span class="fc" id="L45">        tokenObj.setUsed(false);</span>
 
         //Return token
-<span class="fc" id="L44">        return tokenObj;</span>
+<span class="fc" id="L48">        return tokenObj;</span>
     }
 
     @Override
     public void saveToken(EmailVerificationToken token) {
         //Save token object into db
-<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (token == null){</span>
-<span class="fc" id="L51">            throw new TokenNotValidException(&quot;Token is not valid.&quot;);</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (token == null){</span>
+<span class="fc" id="L55">            throw new TokenNotValidException(&quot;Token is not valid.&quot;);</span>
         }
-<span class="fc" id="L53">        emailVerifTokenRepository.save(token);</span>
-<span class="fc" id="L54">    }</span>
+<span class="fc" id="L57">        emailVerifTokenRepository.save(token);</span>
+<span class="fc" id="L58">    }</span>
+
+
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
