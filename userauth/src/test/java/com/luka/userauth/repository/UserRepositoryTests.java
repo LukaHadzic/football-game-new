@@ -4,7 +4,6 @@ import com.luka.userauth.config.TestClockConfig;
 import com.luka.userauth.config.TestContainerDatabaseConfig;
 import com.luka.userauth.entity.Role;
 import com.luka.userauth.entity.User;
-import com.luka.userauth.exception.exceptionclasses.UserAlreadyExistsException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
