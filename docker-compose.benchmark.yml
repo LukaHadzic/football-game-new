@@ -1,0 +1,20 @@
+services:
+  postgres-benchmark:
+    image: postgres:16
+    container_name: pg_benchmark
+    environment:
+      POSTGRES_DB: benchmark_db
+      POSTGRES_USER: benchmark_user
+      POSTGRES_PASSWORD: benchmark_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - benchmark_data:/var/lib/postgresql/data
+      - ./benchmark/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bench -d benchmark_db"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+volumes:
+  benchmark_data:
