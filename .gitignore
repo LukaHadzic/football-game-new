@@ -39,3 +39,6 @@ Zahtevi.txt
 
 ### Baseline sql files
 benchmark/baseline_50000.sql
+
+### Results directiory
+benchmark/results/

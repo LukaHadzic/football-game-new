@@ -12,7 +12,7 @@ services:
       - benchmark_data:/var/lib/postgresql/data
       - ./benchmark/init:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bench -d benchmark_db"]
+      test: ["CMD-SHELL", "pg_isready -U benchmark_user -d benchmark_db"]
       interval: 2s
       timeout: 3s
       retries: 10

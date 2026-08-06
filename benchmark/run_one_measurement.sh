@@ -34,7 +34,7 @@ run_and_record() {
   timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
   local output
-  output=$(docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -t -A -c "$query")
+  output=$(docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -t -A -c "$query" < /dev/null)
 
   local planning_time execution_time buffers_shared_hit buffers_read buffers_shared_hit_planning
   planning_time=$(echo "$output" | grep -oP 'Planning Time: \K[0-9.]+' || echo "NA")
@@ -49,7 +49,7 @@ run_and_record() {
 }
 
 #Parse queries file
-while IFS= read -r line; do
+while IFS= read -r line <&3; do
   if [[ "$line" =~ ^--\ name:\ (.+)$ ]]; then
     run_and_record "$current_name" "$current_query"
     current_name="${BASH_REMATCH[1]}"
@@ -57,7 +57,7 @@ while IFS= read -r line; do
   else
     current_query="${current_query} ${line}"
   fi
-done < "$QUERIES_FILE"
+done 3< "$QUERIES_FILE"
 
 #Run last query block - remains not runned after while loop
 run_and_record "$current_name" "$current_query"
