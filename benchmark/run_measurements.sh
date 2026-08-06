@@ -8,7 +8,6 @@ DB_NAME="benchmark_db"
 DB_USER="benchmark_user"
 QUERIES_FILE="benchmark/queries.sql"
 RESULTS_FILE="benchmark/results/results.csv"
-RUN_NUMBER="${1:-0}"
 TEST_USER_ID=$(docker exec "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -tAc \
 "SELECT user_id FROM refresh_token GROUP BY user_id ORDER BY COUNT(*) DESC LIMIT 1 OFFSET 9")
 
@@ -30,7 +29,7 @@ mkdir -p benchmark/results
 
 #If .csv doesn't exist, make file with header
 if [ ! -f "$RESULTS_FILE" ]; then
-  echo "timestamp,dataset_size,run_number,query_name,index_used,planning_time_ms,execution_time_ms, buffers_shared_hit,buffers_shared_hit_planning,buffers_read" > "$RESULTS_FILE"
+  echo "timestamp,dataset_size,run_number,query_name,index_used,planning_time_ms,execution_time_ms,planned_hit,exec_hit,planed_read,exec_read,temp_read,temp_written" > "$RESULTS_FILE"
 fi
 
 #Function for executing and gathering queries results and performance details
@@ -51,14 +50,30 @@ run_and_record() {
     output=$(echo "$query" | docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" \
      -v test_user_id="$TEST_USER_ID" -t -A)
 
-    local planning_time execution_time buffers_shared_hit buffers_read buffers_shared_hit_planning
+    local exec_buffers_line planning_buffers_line planning_time execution_time exec_hit exec_read planned_hit planned_read temp_read temp_written
+    exec_buffers_line=$(echo "$output" | awk '/^Planning:/{exit} /Buffers:/{print; exit}')
+    planning_buffers_line=$(echo "$output" | awk '/^Planning:/{getline; print; exit}')
+
     planning_time=$(echo "$output" | grep -oP 'Planning Time: \K[0-9.]+' || echo "NA")
     execution_time=$(echo "$output" | grep -oP 'Execution Time: \K[0-9.]+' || echo "NA")
-    buffers_shared_hit=$(echo "$output" | grep -oP 'shared hit=\K\d+' | sed -n '1p' || echo "NA")
-    buffers_shared_hit_planning=$(echo "$output" | grep -oP 'shared hit=\K\d+' | sed -n '2p' || echo "NA")
-    buffers_read=$(echo "$output" | grep -oP -m1 'read=\K\d+' || echo 0)
 
-    echo "${timestamp},${DATASET_SIZE},${RUN_NUMBER},${name},${INDEX_USED},${planning_time},${execution_time},${buffers_shared_hit_planning},${buffers_shared_hit},${buffers_read}" >> "$RESULTS_FILE"
+    exec_hit=$(echo "$exec_buffers_line" | { grep -oP 'shared[^,]*\bhit=\K\d+' || true; } | head -n1 ); exec_hit=${exec_hit:-0}
+    exec_read=$(echo "$exec_buffers_line" | { grep -oP 'shared[^,]*\bread=\K\d+' || true; } | head -n1 ); exec_read=${exec_read:-0}
+
+    planned_hit=$(echo "$planning_buffers_line" | { grep -oP 'hit=\K\d+' || true; } | head -n1 ); planned_hit=${planned_hit:-0}
+    planned_read=$(echo "$planning_buffers_line" | { grep -oP 'read=\K\d+' || true; } | head -n1 ); planned_read=${planned_read:-0}
+
+    temp_read=$(echo "$exec_buffers_line" | { grep -oP 'temp[^,]*\bread=\K\d+' || true; } | head -n1); temp_read=${temp_read:-"NA"}
+    temp_written=$(echo "$exec_buffers_line" | { grep -oP 'temp[^,]*\bwritten=\K\d+' || true; } | head -n1); temp_written=${temp_written:-"NA"}
+
+
+#    planning_time=$(echo "$output" | grep -oP 'Planning Time: \K[0-9.]+' || echo "NA")
+#    execution_time=$(echo "$output" | grep -oP 'Execution Time: \K[0-9.]+' || echo "NA")
+#    buffers_shared_hit=$(echo "$output" | grep -oP 'shared hit=\K\d+' | sed -n '1p' || echo "NA")
+#    buffers_shared_hit_planning=$(echo "$output" | grep -oP 'shared hit=\K\d+' | sed -n '2p' || echo "NA")
+#    buffers_read=$(echo "$output" | grep -oP 'read=\K\d+' | head -n1 || echo 0)
+
+    echo "${timestamp},${DATASET_SIZE},${i},${name},${INDEX_USED},${planning_time},${execution_time},${planned_hit},${exec_hit},${planned_read},${exec_read},${temp_read},${temp_written}" >> "$RESULTS_FILE"
     echo "       [$name] planning=${planning_time}ms execution=${execution_time}ms"
     echo "       $output"
     echo ""

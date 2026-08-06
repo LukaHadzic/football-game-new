@@ -26,7 +26,7 @@ SELECT
     substr(md5(random()::text) || md5(random()::text) || md5(random()::text), 1, 60),
     random() < 0.85,
 --     now() - (LEAST(730, -ln(random()) * 150) || 'days')::interval
-    :'reference_time'::timestamp - (LEAST(730, -ln(random()) * 150) || 'days')::interval
+    :'reference_time'::timestamp - (LEAST(730, -ln(random()) * 150) * INTERVAL '1 day')::interval
 FROM generate_series(1, :row_count) AS i;
 
 -- =============================
