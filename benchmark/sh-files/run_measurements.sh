@@ -6,7 +6,7 @@ DATASET_SIZE="${2-50000}"
 CONTAINER="pg_benchmark"
 DB_NAME="benchmark_db"
 DB_USER="benchmark_user"
-QUERIES_FILE="benchmark/queries.sql"
+QUERIES_FILE="benchmark/sql-files/queries.sql"
 RESULTS_FILE="benchmark/results/results.csv"
 TEST_USER_ID=$(docker exec "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -tAc \
 "SELECT user_id FROM refresh_token GROUP BY user_id ORDER BY COUNT(*) DESC LIMIT 1 OFFSET 9")
@@ -17,7 +17,7 @@ echo "Running VACUUM ANALYZE before measurements"
 docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c "VACUUM ANALYZE;"
 
 echo "Warming up database cache"
-docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" < benchmark/cache_warmup.sql
+docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" < benchmark/sql-files/cache_warmup.sql
 
 INDEX_USED=$(docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -tAc \
 "SELECT CASE WHEN EXISTS (

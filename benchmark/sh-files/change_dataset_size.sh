@@ -12,5 +12,5 @@ docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c "DROP SCHEMA pub
 echo "Old schema dropped."
 
 echo "Generating database with new dataset..."
-docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" < benchmark/baseline_"${DATASET_SIZE}".sql
+docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" < benchmark/sql-files/dump/baseline_"${DATASET_SIZE}".sql
 echo "Done."
