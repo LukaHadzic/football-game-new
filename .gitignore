@@ -36,3 +36,11 @@ build/
 
 Spisak.txt
 Zahtevi.txt
+
+### Baseline sql files
+benchmark/sql-files/dump/baseline_50000.sql
+benchmark/sql-files/dump/baseline_500000.sql
+benchmark/sql-files/dump/baseline_5000000.sql
+
+### Results directiory
+benchmark/results/

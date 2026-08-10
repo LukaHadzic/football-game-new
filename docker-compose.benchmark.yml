@@ -1,0 +1,27 @@
+services:
+  postgres-benchmark:
+    image: postgres:16
+    container_name: pg_benchmark
+    shm_size: '2gb'
+#    mozda iskljuciti JIT???
+    environment:
+      POSTGRES_DB: benchmark_db
+      POSTGRES_USER: benchmark_user
+      POSTGRES_PASSWORD: benchmark_pass
+    command: >
+      postgres
+      -c max_wal_size=4GB
+      -c min_wal_size=2GB
+      -c checkpoint_completion_target=0.9
+    ports:
+      - "5433:5432"
+    volumes:
+      - benchmark_data:/var/lib/postgresql/data
+      - ./benchmark/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U benchmark_user -d benchmark_db"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+volumes:
+  benchmark_data:
