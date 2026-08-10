@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
+
+export LC_All=C.UTF-8
+export LANG=C.UTF-8
+
 set -euo pipefail
 
 RUNS="${1:-20}"
 DATASET_SIZE="${2-50000}"
 CONTAINER="pg_benchmark"
-DB_NAME="benchmark_db"
+DB_NAME="benchmark_db_dml"
 DB_USER="benchmark_user"
-QUERIES_FILE="benchmark/sql-files/queries.sql"
-RESULTS_FILE="benchmark/results/results.csv"
+QUERIES_FILE="benchmark/sql-files/queries_dml.sql"
+RESULTS_FILE="benchmark/results/results_dml.csv"
 TEST_USER_ID=$(docker exec "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -tAc \
 "SELECT user_id FROM refresh_token GROUP BY user_id ORDER BY COUNT(*) DESC LIMIT 1 OFFSET 9")
 
@@ -43,11 +47,13 @@ run_and_record() {
   for i in $(seq 1 "$RUNS"); do
     echo "=== Run $i/$RUNS for $DATASET_SIZE rows and query $name ==="
 
+    docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c "VACUUM refresh_token;" < /dev/null > /dev/null
+
     local timestamp
     timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
     local output
-    output=$(echo "$query" | docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" \
+    output=$(echo "BEGIN; EXPLAIN (ANALYZE, BUFFERS) $query ROLLBACK;" | docker exec -i "$CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" \
      -v test_user_id="$TEST_USER_ID" -t -A)
 
     local exec_buffers_line planning_buffers_line planning_time execution_time exec_hit exec_read planned_hit planned_read temp_read temp_written
@@ -65,13 +71,6 @@ run_and_record() {
 
     temp_read=$(echo "$exec_buffers_line" | { grep -oP 'temp[^,]*\bread=\K\d+' || true; } | head -n1); temp_read=${temp_read:-"NA"}
     temp_written=$(echo "$exec_buffers_line" | { grep -oP 'temp[^,]*\bwritten=\K\d+' || true; } | head -n1); temp_written=${temp_written:-"NA"}
-
-
-#    planning_time=$(echo "$output" | grep -oP 'Planning Time: \K[0-9.]+' || echo "NA")
-#    execution_time=$(echo "$output" | grep -oP 'Execution Time: \K[0-9.]+' || echo "NA")
-#    buffers_shared_hit=$(echo "$output" | grep -oP 'shared hit=\K\d+' | sed -n '1p' || echo "NA")
-#    buffers_shared_hit_planning=$(echo "$output" | grep -oP 'shared hit=\K\d+' | sed -n '2p' || echo "NA")
-#    buffers_read=$(echo "$output" | grep -oP 'read=\K\d+' | head -n1 || echo 0)
 
     echo "${timestamp},${DATASET_SIZE},${i},${name},${INDEX_USED},${planning_time},${execution_time},${planned_hit},${exec_hit},${planned_read},${exec_read},${temp_read},${temp_written}" >> "$RESULTS_FILE"
     echo "       [$name] planning=${planning_time}ms execution=${execution_time}ms"
@@ -99,11 +98,3 @@ done 3< "$QUERIES_FILE"
 run_and_record "$current_name" "$current_query"
 
 echo "All measurements are finished. Result saved in $RESULTS_FILE"
-
-#for i in $(seq 1 "$RUNS"); do
-#  echo "--- Run $i/$RUNS for $DATASET_SIZE rows ---"
-#  ./benchmark/run_one_measurement.sh $i $DATASET_SIZE $INDEX_EXISTS
-#  sleep 2
-#done;
-#
-#echo "All $RUNS measurements finished. Results in benchmark/results/"

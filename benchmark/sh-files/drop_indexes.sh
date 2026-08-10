@@ -3,7 +3,7 @@
 set -euo pipefail
 
 CONTAINER="pg_benchmark"
-DB_NAME="benchmark_db"
+DB_NAME="benchmark_db_dml"
 DB_USER="benchmark_user"
 
 echo "Dropping index..."
